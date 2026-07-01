@@ -1,0 +1,27 @@
+{
+  "name": "arco-design-skill",
+  "version": "0.1.0",
+  "description": "Project-local Arco Design skills for React and Vue.",
+  "author": {
+    "name": "arco-design"
+  },
+  "homepage": "https://github.com/arco-design/arco-design-skill",
+  "repository": "https://github.com/arco-design/arco-design-skill",
+  "license": "MIT",
+  "keywords": ["arco-design", "react", "vue", "ui", "skills"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Arco Design Skill",
+    "shortDescription": "Arco Design React and Vue skills for this project.",
+    "longDescription": "Project-local Arco Design skills vendored from arco-design/arco-design-skill for React and Vue UI development in Codex.",
+    "developerName": "arco-design",
+    "category": "Productivity",
+    "capabilities": ["Write"],
+    "websiteURL": "https://github.com/arco-design/arco-design-skill",
+    "defaultPrompt": [
+      "使用 Arco Design 帮我搭一个 React 页面。",
+      "用 Arco Design Vue 生成一个表单页面。",
+      "按 Arco 规范重构当前前端界面。"
+    ]
+  }
+}

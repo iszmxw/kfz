@@ -1,0 +1,20 @@
+{
+  "name": "project-local",
+  "interface": {
+    "displayName": "Project Local"
+  },
+  "plugins": [
+    {
+      "name": "arco-design-skill",
+      "source": {
+        "source": "local",
+        "path": "./plugins/arco-design-skill"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
