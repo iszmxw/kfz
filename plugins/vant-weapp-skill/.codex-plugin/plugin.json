@@ -1,0 +1,27 @@
+{
+  "name": "vant-weapp-skill",
+  "version": "0.1.0",
+  "description": "Project-local Vant Weapp skills for WeChat Mini Program UI development.",
+  "author": {
+    "name": "youzan"
+  },
+  "homepage": "https://github.com/youzan/vant-weapp",
+  "repository": "https://github.com/youzan/vant-weapp",
+  "license": "MIT",
+  "keywords": ["vant-weapp", "miniprogram", "wechat", "ui", "skills"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Vant Weapp Skill",
+    "shortDescription": "Vant Weapp skills for WeChat Mini Program development.",
+    "longDescription": "Project-local Vant Weapp skills based on official documentation for WeChat Mini Program UI development in Codex.",
+    "developerName": "youzan",
+    "category": "Productivity",
+    "capabilities": ["Write"],
+    "websiteURL": "https://github.com/youzan/vant-weapp",
+    "defaultPrompt": [
+      "使用 vant-weapp 帮我写一个微信小程序页面。",
+      "用 vant-weapp 实现表单和弹窗交互。",
+      "按 vant-weapp 规范重构当前小程序界面。"
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vant Weapp"
+  short_description: "Vant Weapp 微信小程序组件库参考与开发技能"
+  default_prompt: "使用 vant-weapp 帮我编写微信小程序界面"
