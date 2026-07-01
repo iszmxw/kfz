@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-更完整的项目级约束见 `AGENT.md`，业务规划见 `docs/`。
+更完整的项目级约束见 `AGENTS.md`，业务规划见 `docs/`。
 
 ## 项目概述
 

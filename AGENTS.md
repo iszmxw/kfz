@@ -1,12 +1,12 @@
-# AGENT.md
+# AGENTS.md
 
-本文件用于约束后续 AI Agent 或开发者在本仓库中的协作方式。修改代码前应先阅读本文档和 `docs/` 下的规划文档。
+本文件是本仓库面向 AI Agent 与开发者的统一协作入口。修改代码前应先阅读本文档和 `docs/` 下的规划文档。
 
 ## 项目定位
 
-这是一个基于现有 Gin/GORM 骨架二次开发的孔夫子二手书扫码回收判断系统。
+这是一个基于现有 Gin + GORM + Viper + Zap 骨架二次开发的二手书扫码回收判断系统。项目支持本地独立运行，也支持通过 `api/client.go` 部署到 Vercel Serverless。
 
-当前项目不是从零搭建的新框架，后续开发应复用现有骨架：
+当前项目不是从零搭建的新框架，后续开发应优先复用现有骨架：
 
 - 本地入口：`main.go`
 - Vercel Serverless 入口：`api/client.go`
@@ -46,7 +46,45 @@ web 相关代码需要保留，不要删除：
 - `routes/web/web.go`
 - `templates`
 
+## 配置管理
+
+项目使用 Viper 库管理配置，有两种配置模式：
+
+1. 本地开发模式：使用 `application.yaml` 配置文件
+2. Vercel 部署模式：通过环境变量 `CONFIG` 传入 JSON 格式的配置
+
+本地开发模式说明：
+
+- 需要在 `.env` 文件中设置 `DEV=1` 来启用此模式。
+- 配置文件位于项目根目录。
+- Viper 会自动向上查找最多 5 层目录来定位 `application.yaml`。
+- 通过 `pkg/config` 包的 `Get`、`GetString`、`GetInt` 等函数读取配置。
+
+Vercel 部署模式说明：
+
+- 配置通过 `config.Initialize()` 在启动时加载。
+- JSON 配置会被 Viper 解析为配置树。
+- 参考 `.env.example` 和 `README.md` 中的配置示例。
+
+配置读取优先级：环境变量（带 `APPENV_` 前缀）> 配置文件。
+
 ## 架构约定
+
+项目保留双入口设计：
+
+1. `main.go`：本地独立运行入口
+2. `api/client.go`：Vercel Serverless 函数入口
+
+两个入口遵循相同初始化顺序：
+
+1. 设置时区为 CST（东八区）
+2. 加载配置（`config.Initialize()`）
+3. 初始化日志系统（`logger.Init()`）
+4. 初始化数据库连接（`bootstrap.SetupDB()`）
+5. 初始化 Redis 连接（`bootstrap.SetupRedis()`）
+6. 加载模板文件（`bootstrap.SetupTemplate()`）
+7. 设置路由（`bootstrap.SetupRoute()`）
+8. 注册 pprof 性能分析
 
 V1 新增业务代码优先贴合当前仓库骨架：
 
@@ -69,6 +107,25 @@ routes/client
 V1 只扩展以上现有目录；当 controller 内业务编排明显变复杂时，再基于真实重复代码抽取公共能力。
 
 Go 文件名统一使用驼峰命名，不使用下划线，例如 `BookController.go`、`PriceSnapshot.go`、`ScanLog.go`。文档文件名继续保持小写。
+
+## 目录重点
+
+- `app/`：应用核心代码
+- `bootstrap/`：应用启动引导
+- `config/`：配置初始化逻辑
+- `pkg/`：可复用工具包
+- `routes/`：路由定义
+- `templates/`：模板文件和静态资源
+- `docs/`：PRD、API、数据库、数据模型、后端架构文档
+
+重点目录说明：
+
+- `routes/client/route.go`：client API 路由
+- `routes/web/web.go`：web 页面路由
+- `app/controllers/client/v1`：client 控制器
+- `app/controllers/web/v1`：web 控制器
+- `app/models`：GORM 模型
+- `pkg/echo`：统一响应封装
 
 ## 数据库约定
 
@@ -110,6 +167,15 @@ API 层可以转换成人民币元展示。
 table_names: "t_book,t_price_snapshot,t_scan_log"
 table_prefix: "-t_"
 ```
+
+当前配置说明：
+
+- `out_dir`：输出目录，默认 `./app/models`
+- `simple: true`：简单输出模式，只输出主键和字段标签
+- `is_out_func: true`：生成快捷函数，如 `Find`、`Update`
+- `is_out_page: true`：生成分页函数
+- `table_prefix`：表前缀处理；如果以 `-` 开头表示去掉该前缀
+- `db_info`：数据库连接信息，默认指向本地 `kfz` 数据库
 
 如果 gormt 生成结果不理想，V1 可以手写模型，但需要保持：
 
@@ -169,6 +235,18 @@ TLS=false
 
 建议开发端口使用 `8888` 或 `8080`，不要使用 80。
 
+本地独立运行：
+
+```bash
+DEV=1 TLS=false go run main.go -APP_PORT=8888
+```
+
+使用 Vercel CLI 本地开发：
+
+```bash
+vercel dev
+```
+
 GoLand Run Configuration 建议：
 
 ```text
@@ -186,7 +264,19 @@ http://127.0.0.1:8888/route
 http://127.0.0.1:8888/app/v1/demo/ping.json
 ```
 
-## 常用验证命令
+## 常用命令
+
+安装依赖：
+
+```bash
+go mod tidy
+```
+
+生成或更新 GORM 模型：
+
+```bash
+go run bin/gormt.go
+```
 
 测试：
 
