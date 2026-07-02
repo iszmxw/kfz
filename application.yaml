@@ -7,7 +7,7 @@ APP_ENV: dev
 ## 用以生成链接
 APP_URL: http://127.0.0.1
 ## 应用服务端口
-APP_PORT: 8080
+APP_PORT: 8888
 # pprof 分析 打开后可以分析堆栈调用，cpu占用
 APP_PPROF: true
 # 是否启用https

@@ -25,7 +25,12 @@ export function request<T>(options: RequestOptions): Promise<T> {
         }
         resolve(body.data as T);
       },
-      fail: () => {
+      fail: (error) => {
+        const errMsg = typeof error?.errMsg === "string" ? error.errMsg : "";
+        if (errMsg.includes("connect") || errMsg.includes("refused") || errMsg.includes("fail")) {
+          reject(new Error(`接口不可达，请确认后端已启动：${config.baseUrl}`));
+          return;
+        }
         reject(new Error("网络异常，请重试"));
       }
     });

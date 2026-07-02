@@ -1,0 +1,16 @@
+<view wx:if="{{ !hidden }}" class="tabbar tabbar-safe-bottom">
+  <view
+    wx:for="{{ tabs }}"
+    wx:key="pagePath"
+    class="tab-item {{ selected === item.pagePath ? 'is-active' : '' }}"
+    data-path="{{ item.pagePath }}"
+    bindtap="onSwitchTab"
+  >
+    <van-icon
+      name="{{ selected === item.pagePath ? item.activeIcon : item.icon }}"
+      class-prefix="van-icon"
+      custom-class="tab-icon"
+    />
+    <text class="tab-label">{{ item.text }}</text>
+  </view>
+</view>

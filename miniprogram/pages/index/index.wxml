@@ -19,6 +19,65 @@
     </view>
   </view>
 
+  <view id="result-anchor" wx:if="{{ currentResult || showRecentOnly }}" class="result-spotlight">
+    <view wx:if="{{ currentResult }}" class="section-title spotlight-title">当前扫码结果</view>
+    <view wx:if="{{ currentResult }}" class="result-card card {{ decisionTone }}">
+      <view class="decision-hero">
+        <text class="decision-mark">{{ decisionLabel }}</text>
+        <text class="decision-title">{{ decisionTitle }}</text>
+        <view wx:if="{{ showSuggestedPrice }}" class="decision-price">
+          <text>建议回收价 </text>
+          <text class="price">{{ suggestedPriceText }}</text>
+        </view>
+        <text class="decision-reason">{{ currentResult.reason }}</text>
+        <van-tag wx:if="{{ currentResult.duplicate.scanned_recently }}" custom-class="duplicate-tag" type="warning">
+          该 ISBN 近期扫过
+        </van-tag>
+      </view>
+
+      <view class="book-row">
+        <view class="cover {{ decisionTone }}">
+          <text>{{ coverText }}</text>
+        </view>
+        <view class="book-info">
+          <text class="book-title">{{ bookTitleText }}</text>
+          <text class="book-meta">{{ currentResult.book.normalized_isbn }}</text>
+          <text class="book-meta">{{ bookPublishText }}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{ settings.showPriceDetail }}" class="summary-grid">
+        <view class="summary-item">
+          <text class="summary-value">{{ marketMinText }}</text>
+          <text class="summary-label">最低价</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-value">{{ marketAvgText }}</text>
+          <text class="summary-label">均价</text>
+        </view>
+        <view class="summary-item">
+          <text class="summary-value">{{ marketSampleText }}</text>
+          <text class="summary-label">样本数</text>
+        </view>
+      </view>
+
+      <view wx:if="{{ showManualActions }}" class="manual-actions">
+        <van-button type="primary" color="#0f9f6e" block bind:click="onManualAccept">收</van-button>
+        <van-button type="danger" block bind:click="onManualReject">不收</van-button>
+      </view>
+    </view>
+
+    <view wx:if="{{ showRecentOnly }}" class="section-title spotlight-title">最近一次扫码</view>
+    <view wx:if="{{ showRecentOnly }}" class="history-card card" bindtap="restoreRecent">
+      <view>
+        <text class="history-title">{{ recentTitleText }}</text>
+        <text class="history-meta">{{ recentResult.book.normalized_isbn }} · {{ recentTimeText }}</text>
+        <text class="history-price">建议回收价 {{ recentPriceText }}</text>
+      </view>
+      <van-tag custom-class="history-tag" color="{{ recentTagColor }}">{{ recentDecisionLabel }}</van-tag>
+    </view>
+  </view>
+
   <view class="scan-card card">
     <van-button
       custom-class="scan-button"
@@ -30,8 +89,8 @@
     >
       <view class="scan-icon">ISBN</view>
     </van-button>
-    <text class="scan-title">{{ scanButtonText }}</text>
-    <text class="scan-subtitle">对准 ISBN 条形码，系统返回收、不收或需确认。</text>
+    <text class="scan-title">{{ currentResult || showRecentOnly ? "继续扫码" : scanButtonText }}</text>
+    <text class="scan-subtitle">{{ currentResult || showRecentOnly ? "新图书可继续扫码，当前结果已展示在上方。" : "对准 ISBN 条形码，系统返回收、不收或需确认。" }}</text>
     <view wx:if="{{ checking }}" class="weak-tip">弱网时可能需要多等几秒，请勿重复点击扫码按钮。</view>
   </view>
 
@@ -53,6 +112,7 @@
       label="调试 ISBN"
       placeholder="开发者工具无法扫码时输入"
       clearable
+      bind:input="onManualISBNChange"
       bind:change="onManualISBNChange"
       use-button-slot
     >
@@ -62,68 +122,12 @@
     </van-field>
   </view>
 
-  <view wx:if="{{ currentResult }}" class="section-title">当前扫码结果</view>
-  <view wx:if="{{ currentResult }}" class="result-card card {{ decisionTone }}">
-    <view class="decision-hero">
-      <text class="decision-mark">{{ decisionLabel }}</text>
-      <text class="decision-title">{{ decisionTitle }}</text>
-      <view wx:if="{{ showSuggestedPrice }}" class="decision-price">
-        <text>建议回收价 </text>
-        <text class="price">{{ suggestedPriceText }}</text>
-      </view>
-      <text class="decision-reason">{{ currentResult.reason }}</text>
-      <van-tag wx:if="{{ currentResult.duplicate.scanned_recently }}" custom-class="duplicate-tag" type="warning">
-        该 ISBN 近期扫过
-      </van-tag>
-    </view>
-
-    <view class="book-row">
-      <view class="cover {{ decisionTone }}">
-        <text>{{ coverText }}</text>
-      </view>
-      <view class="book-info">
-        <text class="book-title">{{ bookTitleText }}</text>
-        <text class="book-meta">{{ currentResult.book.normalized_isbn }}</text>
-        <text class="book-meta">{{ bookPublishText }}</text>
-      </view>
-    </view>
-
-    <view wx:if="{{ settings.showPriceDetail }}" class="summary-grid">
-      <view class="summary-item">
-        <text class="summary-value">{{ marketMinText }}</text>
-        <text class="summary-label">最低价</text>
-      </view>
-      <view class="summary-item">
-        <text class="summary-value">{{ marketAvgText }}</text>
-        <text class="summary-label">均价</text>
-      </view>
-      <view class="summary-item">
-        <text class="summary-value">{{ marketSampleText }}</text>
-        <text class="summary-label">样本数</text>
-      </view>
-    </view>
-
-    <view wx:if="{{ showManualActions }}" class="manual-actions">
-      <van-button type="primary" color="#0f9f6e" block bind:click="onManualAccept">收</van-button>
-      <van-button type="danger" block bind:click="onManualReject">不收</van-button>
-    </view>
-  </view>
-
-  <view wx:if="{{ showRecentOnly }}" class="section-title">最近一次扫码</view>
-  <view wx:if="{{ showRecentOnly }}" class="history-card card" bindtap="restoreRecent">
-    <view>
-      <text class="history-title">{{ recentTitleText }}</text>
-      <text class="history-meta">{{ recentResult.book.normalized_isbn }} · {{ recentTimeText }}</text>
-      <text class="history-price">建议回收价 {{ recentPriceText }}</text>
-    </view>
-    <van-tag custom-class="history-tag" color="{{ recentTagColor }}">{{ recentDecisionLabel }}</van-tag>
-  </view>
-
   <van-popup
     show="{{ showErrorPopup }}"
     round
     closeable
     position="bottom"
+    z-index="1000"
     custom-style="min-height: 260px;"
     bind:close="closeErrorPopup"
   >

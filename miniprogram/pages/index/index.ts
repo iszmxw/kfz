@@ -80,6 +80,10 @@ Page<IndexData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onShow() {
+    const tabBar = typeof this.getTabBar === "function" ? this.getTabBar() : null;
+    if (tabBar && typeof tabBar.setData === "function") {
+      tabBar.setData({ selected: "pages/index/index" });
+    }
     const settings = getSettings();
     const recentResult = getRecentScan();
     this.setData({ settings, recentResult, detailDisabled: !recentResult });
@@ -103,8 +107,9 @@ Page<IndexData, WechatMiniprogram.Page.CustomOption>({
     });
   },
 
-  onManualISBNChange(event: WechatMiniprogram.CustomEvent<{ value: string }>) {
-    this.setData({ manualISBN: event.detail.value });
+  onManualISBNChange(event: WechatMiniprogram.CustomEvent<{ value?: string } | string>) {
+    const manualISBN = typeof event.detail === "string" ? event.detail : event.detail.value ?? "";
+    this.setData({ manualISBN });
   },
 
   onManualCheck() {
@@ -142,6 +147,7 @@ Page<IndexData, WechatMiniprogram.Page.CustomOption>({
       this.refreshResultView(result);
       this.refreshRecentView(result);
       this.afterDecision(result);
+      this.focusResult();
       Toast.clear();
     } catch (error) {
       const message = error instanceof Error ? error.message : "网络异常，请重试";
@@ -209,6 +215,16 @@ Page<IndexData, WechatMiniprogram.Page.CustomOption>({
     }
     this.setData({ currentResult: this.data.recentResult });
     this.refreshResultView(this.data.recentResult);
+    this.focusResult();
+  },
+
+  focusResult() {
+    wx.nextTick(() => {
+      wx.pageScrollTo({
+        selector: "#result-anchor",
+        duration: 280
+      });
+    });
   },
 
   onToggleVoice(event: WechatMiniprogram.CustomEvent<{ value?: boolean }>) {
@@ -248,6 +264,10 @@ Page<IndexData, WechatMiniprogram.Page.CustomOption>({
   },
 
   showError(title: string, message: string) {
+    const tabBar = typeof this.getTabBar === "function" ? this.getTabBar() : null;
+    if (tabBar && typeof tabBar.setData === "function") {
+      tabBar.setData({ hidden: true });
+    }
     this.setData({
       showErrorPopup: true,
       errorTitle: title,
@@ -256,6 +276,10 @@ Page<IndexData, WechatMiniprogram.Page.CustomOption>({
   },
 
   closeErrorPopup() {
+    const tabBar = typeof this.getTabBar === "function" ? this.getTabBar() : null;
+    if (tabBar && typeof tabBar.setData === "function") {
+      tabBar.setData({ hidden: false });
+    }
     this.setData({ showErrorPopup: false });
   }
 });

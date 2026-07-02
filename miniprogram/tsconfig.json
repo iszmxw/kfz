@@ -9,23 +9,21 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
-    "types": ["miniprogram-api-typings", "node", "vitest/globals"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
     },
-    "outDir": "dist",
     "rootDir": ".",
     "skipLibCheck": true
   },
   "include": [
     "app.ts",
     "config/**/*.ts",
+    "custom-tab-bar/**/*.ts",
     "services/**/*.ts",
     "types/**/*.ts",
     "utils/**/*.ts",
-    "pages/**/*.ts",
-    "tests/**/*.ts"
+    "pages/**/*.ts"
   ],
   "exclude": ["node_modules", "miniprogram_npm", "dist"]
 }

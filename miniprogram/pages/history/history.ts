@@ -33,6 +33,10 @@ Page<HistoryData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onShow() {
+    const tabBar = typeof this.getTabBar === "function" ? this.getTabBar() : null;
+    if (tabBar && typeof tabBar.setData === "function") {
+      tabBar.setData({ selected: "pages/history/history" });
+    }
     this.loadHistory();
   },
 

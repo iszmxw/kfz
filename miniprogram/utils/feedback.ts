@@ -1,7 +1,23 @@
 import type { Decision } from "../types/api";
 
-export function playDecisionVoice(_decision: Decision): void {
-  // Audio assets are not ready in V1. Keep this seam for shou.mp3/bushou.mp3 later.
+const decisionAudioMap: Record<Decision, string> = {
+  ACCEPT: "/assets/audio/shou.mp3",
+  REJECT: "/assets/audio/bushou.mp3",
+  NEED_REVIEW: "/assets/audio/xuqueren.mp3"
+};
+
+export function playDecisionVoice(decision: Decision): void {
+  const src = decisionAudioMap[decision];
+  if (!src) {
+    return;
+  }
+
+  const audio = wx.createInnerAudioContext();
+  audio.src = src;
+  audio.obeyMuteSwitch = false;
+  audio.onEnded(() => audio.destroy());
+  audio.onError(() => audio.destroy());
+  audio.play();
 }
 
 export function vibrateShort(): void {

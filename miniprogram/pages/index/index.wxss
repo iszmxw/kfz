@@ -42,6 +42,14 @@
   margin: 16px 0;
 }
 
+.result-spotlight {
+  margin: 6px 0 14px;
+}
+
+.spotlight-title {
+  margin-bottom: 8px;
+}
+
 .stat-box {
   padding: 11px 10px;
   background: #ffffff;
@@ -131,6 +139,11 @@
 
 .result-card {
   margin-top: 8px;
+}
+
+.result-spotlight .result-card,
+.result-spotlight .history-card {
+  margin-top: 0;
 }
 
 .decision-hero {

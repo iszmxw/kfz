@@ -1,5 +1,5 @@
-export function normalizeISBN(value: string): string {
-  const normalized = value.trim().toUpperCase().replace(/[-\s]/g, "");
+export function normalizeISBN(value: string | null | undefined): string {
+  const normalized = String(value ?? "").trim().toUpperCase().replace(/[-\s]/g, "");
 
   if (/^\d{13}$/.test(normalized)) {
     return normalized;
@@ -12,8 +12,8 @@ export function normalizeISBN(value: string): string {
   return "";
 }
 
-export function extractISBN(value: string): string {
-  const compact = value.toUpperCase().replace(/[-\s:：]/g, "");
+export function extractISBN(value: string | null | undefined): string {
+  const compact = String(value ?? "").toUpperCase().replace(/[-\s:：]/g, "");
   const isbn13 = compact.match(/\d{13}/);
   if (isbn13) {
     return normalizeISBN(isbn13[0]);

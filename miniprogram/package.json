@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc -p tsconfig.test.json"
   },
   "dependencies": {
     "@vant/weapp": "^1.11.7"

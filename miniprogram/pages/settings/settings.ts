@@ -11,6 +11,10 @@ Page<SettingsData, WechatMiniprogram.Page.CustomOption>({
   },
 
   onShow() {
+    const tabBar = typeof this.getTabBar === "function" ? this.getTabBar() : null;
+    if (tabBar && typeof tabBar.setData === "function") {
+      tabBar.setData({ selected: "pages/settings/settings" });
+    }
     this.setData({ settings: getSettings() });
   },
 
