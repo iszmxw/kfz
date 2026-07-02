@@ -1,0 +1,27 @@
+<view class="page settings-page safe-bottom">
+  <van-cell-group custom-class="cell-card">
+    <van-cell title="语音播报" label="返回结果后播放提示音">
+      <van-switch slot="right-icon" checked="{{ settings.voiceEnabled }}" size="24px" data-key="voiceEnabled" bind:change="onSwitchChange" />
+    </van-cell>
+    <van-cell title="震动提醒" label="扫码结果返回时震动">
+      <van-switch slot="right-icon" checked="{{ settings.vibrateEnabled }}" size="24px" data-key="vibrateEnabled" bind:change="onSwitchChange" />
+    </van-cell>
+    <van-cell title="显示价格详情" label="展示最低价、均价、样本数">
+      <van-switch slot="right-icon" checked="{{ settings.showPriceDetail }}" size="24px" data-key="showPriceDetail" bind:change="onSwitchChange" />
+    </van-cell>
+    <van-cell title="连续扫码" label="V2 预留，批次能力完成后启用">
+      <van-switch slot="right-icon" checked="{{ false }}" disabled size="24px" />
+    </van-cell>
+  </van-cell-group>
+
+  <view class="section-title">系统信息</view>
+  <van-cell-group custom-class="cell-card">
+    <van-cell title="接口环境" label="真实后端优先，默认本地联调">
+      <van-tag slot="right-icon" type="primary">Local</van-tag>
+    </van-cell>
+    <van-cell title="操作员信息" label="V2 预留" value="未启用" />
+    <van-cell title="门店信息" label="V2 预留" value="未启用" />
+  </van-cell-group>
+
+  <van-toast id="van-toast" />
+</view>

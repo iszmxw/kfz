@@ -1,0 +1,45 @@
+page {
+  --button-border-radius: 8px;
+  --button-primary-background-color: #1677ff;
+  --button-primary-border-color: #1677ff;
+  --cell-font-size: 15px;
+  --cell-line-height: 1.4;
+  --cell-group-background-color: #ffffff;
+  --tag-border-radius: 5px;
+  --tabs-bottom-bar-color: #1677ff;
+  background: #f6f7f9;
+  color: #17212f;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 16px 14px 28px;
+  box-sizing: border-box;
+}
+
+.section-title {
+  margin: 18px 2px 8px;
+  color: #6f7c8e;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e7e9ee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.muted {
+  color: #6f7c8e;
+}
+
+.text-strong {
+  font-weight: 800;
+}
+
+.safe-bottom {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}

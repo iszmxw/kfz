@@ -1,0 +1,52 @@
+<view class="page detail-page safe-bottom">
+  <view wx:if="{{ loading }}" class="loading-text">加载中...</view>
+
+  <view wx:elif="{{ detail }}" class="detail-content">
+    <view class="book-card card">
+      <view class="cover {{ decisionTone }}">
+        <text>{{ coverText }}</text>
+      </view>
+      <view class="book-main">
+        <text class="detail-title">{{ bookTitleText }}</text>
+        <text class="detail-meta">ISBN {{ detail.book.normalized_isbn }}</text>
+        <text class="detail-meta">作者：{{ bookAuthorText }}</text>
+        <text class="detail-meta">{{ bookPublishText }}</text>
+      </view>
+    </view>
+
+    <view class="section-title">价格区间</view>
+    <view class="summary-grid card">
+      <view class="summary-item">
+        <text class="summary-value">{{ marketMinText }}</text>
+        <text class="summary-label">最低价</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value">{{ marketAvgText }}</text>
+        <text class="summary-label">平均价</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value">{{ marketMaxText }}</text>
+        <text class="summary-label">最高价</text>
+      </view>
+    </view>
+
+    <van-cell-group custom-class="cell-card">
+      <van-cell title="有效样本数" label="{{ marketSourceText }}" value="{{ marketSampleText }}" />
+      <van-cell title="数据可信度" label="{{ confidenceDesc }}">
+        <van-tag slot="right-icon" color="{{ decisionTagColor }}">{{ confidenceText }}</van-tag>
+      </van-cell>
+      <van-cell title="最近判断" label="{{ detail.latest_decision.reason }}">
+        <van-tag slot="right-icon" color="{{ decisionTagColor }}">{{ decisionText }}</van-tag>
+      </van-cell>
+      <van-cell title="建议回收价" label="按均价折算，现场可参考" value="{{ suggestedPriceText }}" />
+    </van-cell-group>
+
+    <view class="action-row">
+      <van-button type="primary" block bind:click="reload">重新查询</van-button>
+      <van-button block bind:click="goBack">返回扫码页</van-button>
+    </view>
+  </view>
+
+  <van-empty wx:else description="未找到图书信息" />
+  <van-toast id="van-toast" />
+</view>

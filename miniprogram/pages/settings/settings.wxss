@@ -1,0 +1,6 @@
+.cell-card {
+  margin-top: 12px;
+  border: 1px solid #e7e9ee;
+  border-radius: 8px;
+  overflow: hidden;
+}

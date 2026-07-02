@@ -1,0 +1,138 @@
+<view class="page index-page safe-bottom">
+  <view class="hero">
+    <text class="kicker">门店现场扫码判断</text>
+    <text class="title">二手书扫码回收</text>
+  </view>
+
+  <view class="stats-grid">
+    <view class="stat-box">
+      <text class="stat-num">{{todayStats.scanned}}</text>
+      <text class="stat-label">今日已扫</text>
+    </view>
+    <view class="stat-box">
+      <text class="stat-num">{{todayStats.accepted}}</text>
+      <text class="stat-label">建议收</text>
+    </view>
+    <view class="stat-box">
+      <text class="stat-num">{{todayStats.amount}}</text>
+      <text class="stat-label">预计金额</text>
+    </view>
+  </view>
+
+  <view class="scan-card card">
+    <van-button
+      custom-class="scan-button"
+      type="primary"
+      round
+      loading="{{ checking }}"
+      disabled="{{ checking }}"
+      bind:click="onScan"
+    >
+      <view class="scan-icon">ISBN</view>
+    </van-button>
+    <text class="scan-title">{{ scanButtonText }}</text>
+    <text class="scan-subtitle">对准 ISBN 条形码，系统返回收、不收或需确认。</text>
+    <view wx:if="{{ checking }}" class="weak-tip">弱网时可能需要多等几秒，请勿重复点击扫码按钮。</view>
+  </view>
+
+  <view class="quick-row">
+    <van-button custom-class="quick-btn" bind:click="goHistory">历史</van-button>
+    <van-button custom-class="quick-btn" bind:click="goDetail" disabled="{{ detailDisabled }}">详情</van-button>
+    <van-button custom-class="quick-btn" bind:click="goSettings">设置</van-button>
+  </view>
+
+  <van-cell-group custom-class="cell-card">
+    <van-cell title="语音播报" label="扫码后播放“收 / 不收”">
+      <van-switch slot="right-icon" checked="{{ settings.voiceEnabled }}" size="24px" bind:change="onToggleVoice" />
+    </van-cell>
+  </van-cell-group>
+
+  <view class="debug-card card">
+    <van-field
+      value="{{ manualISBN }}"
+      label="调试 ISBN"
+      placeholder="开发者工具无法扫码时输入"
+      clearable
+      bind:change="onManualISBNChange"
+      use-button-slot
+    >
+      <van-button slot="button" size="small" type="primary" loading="{{ checking }}" bind:click="onManualCheck">
+        查询
+      </van-button>
+    </van-field>
+  </view>
+
+  <view wx:if="{{ currentResult }}" class="section-title">当前扫码结果</view>
+  <view wx:if="{{ currentResult }}" class="result-card card {{ decisionTone }}">
+    <view class="decision-hero">
+      <text class="decision-mark">{{ decisionLabel }}</text>
+      <text class="decision-title">{{ decisionTitle }}</text>
+      <view wx:if="{{ showSuggestedPrice }}" class="decision-price">
+        <text>建议回收价 </text>
+        <text class="price">{{ suggestedPriceText }}</text>
+      </view>
+      <text class="decision-reason">{{ currentResult.reason }}</text>
+      <van-tag wx:if="{{ currentResult.duplicate.scanned_recently }}" custom-class="duplicate-tag" type="warning">
+        该 ISBN 近期扫过
+      </van-tag>
+    </view>
+
+    <view class="book-row">
+      <view class="cover {{ decisionTone }}">
+        <text>{{ coverText }}</text>
+      </view>
+      <view class="book-info">
+        <text class="book-title">{{ bookTitleText }}</text>
+        <text class="book-meta">{{ currentResult.book.normalized_isbn }}</text>
+        <text class="book-meta">{{ bookPublishText }}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{ settings.showPriceDetail }}" class="summary-grid">
+      <view class="summary-item">
+        <text class="summary-value">{{ marketMinText }}</text>
+        <text class="summary-label">最低价</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value">{{ marketAvgText }}</text>
+        <text class="summary-label">均价</text>
+      </view>
+      <view class="summary-item">
+        <text class="summary-value">{{ marketSampleText }}</text>
+        <text class="summary-label">样本数</text>
+      </view>
+    </view>
+
+    <view wx:if="{{ showManualActions }}" class="manual-actions">
+      <van-button type="primary" color="#0f9f6e" block bind:click="onManualAccept">收</van-button>
+      <van-button type="danger" block bind:click="onManualReject">不收</van-button>
+    </view>
+  </view>
+
+  <view wx:if="{{ showRecentOnly }}" class="section-title">最近一次扫码</view>
+  <view wx:if="{{ showRecentOnly }}" class="history-card card" bindtap="restoreRecent">
+    <view>
+      <text class="history-title">{{ recentTitleText }}</text>
+      <text class="history-meta">{{ recentResult.book.normalized_isbn }} · {{ recentTimeText }}</text>
+      <text class="history-price">建议回收价 {{ recentPriceText }}</text>
+    </view>
+    <van-tag custom-class="history-tag" color="{{ recentTagColor }}">{{ recentDecisionLabel }}</van-tag>
+  </view>
+
+  <van-popup
+    show="{{ showErrorPopup }}"
+    round
+    closeable
+    position="bottom"
+    custom-style="min-height: 260px;"
+    bind:close="closeErrorPopup"
+  >
+    <view class="error-panel">
+      <text class="error-title">{{ errorTitle }}</text>
+      <text class="error-desc">{{ errorMessage }}</text>
+      <van-button type="primary" block bind:click="closeErrorPopup">知道了</van-button>
+    </view>
+  </van-popup>
+
+  <van-toast id="van-toast" />
+</view>

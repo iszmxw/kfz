@@ -1,0 +1,11 @@
+{
+  "navigationBarTitleText": "书籍详情",
+  "usingComponents": {
+    "van-button": "@vant/weapp/button/index",
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
+    "van-empty": "@vant/weapp/empty/index",
+    "van-tag": "@vant/weapp/tag/index",
+    "van-toast": "@vant/weapp/toast/index"
+  }
+}

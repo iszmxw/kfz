@@ -1,0 +1,30 @@
+<view class="page history-page safe-bottom">
+  <van-tabs active="{{ activeTab }}" bind:change="onTabChange" sticky>
+    <van-tab title="全部" name="ALL"></van-tab>
+    <van-tab title="收" name="ACCEPT"></van-tab>
+    <van-tab title="不收" name="REJECT"></van-tab>
+    <van-tab title="需确认" name="NEED_REVIEW"></van-tab>
+  </van-tabs>
+
+  <view wx:if="{{ loading }}" class="loading-text">加载中...</view>
+
+  <view wx:elif="{{ items.length > 0 }}" class="history-list">
+    <view
+      wx:for="{{ items }}"
+      wx:key="scan_log_id"
+      class="history-item card"
+      data-isbn="{{ item.isbn }}"
+      bindtap="goDetail"
+    >
+      <view>
+        <text class="history-title">{{ item.titleText }}</text>
+        <text class="history-meta">{{ item.isbn }} · {{ item.scannedAtText }}</text>
+        <text class="history-price">{{ item.priceText }}</text>
+      </view>
+      <van-tag color="{{ item.tagColor }}">{{ item.decisionText }}</van-tag>
+    </view>
+  </view>
+
+  <van-empty wx:else description="暂无扫码记录" />
+  <van-toast id="van-toast" />
+</view>

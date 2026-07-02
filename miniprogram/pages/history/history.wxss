@@ -1,0 +1,49 @@
+.history-page {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.loading-text {
+  padding: 28px 14px;
+  color: #6f7c8e;
+  text-align: center;
+}
+
+.history-list {
+  padding: 12px 14px 28px;
+}
+
+.history-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 13px 14px;
+  margin-bottom: 8px;
+}
+
+.history-title,
+.history-meta,
+.history-price {
+  display: block;
+}
+
+.history-title {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.history-meta {
+  margin-top: 5px;
+  color: #6f7c8e;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.history-price {
+  margin-top: 7px;
+  color: #17212f;
+  font-size: 13px;
+  font-weight: 700;
+}

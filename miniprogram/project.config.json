@@ -1,0 +1,17 @@
+{
+  "appid": "touristappid",
+  "projectname": "kfz-miniprogram",
+  "miniprogramRoot": "./",
+  "compileType": "miniprogram",
+  "setting": {
+    "useCompilerPlugins": ["typescript"],
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false
+  },
+  "packOptions": {
+    "ignore": []
+  }
+}

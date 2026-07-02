@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "扫码历史",
+  "usingComponents": {
+    "van-empty": "@vant/weapp/empty/index",
+    "van-tag": "@vant/weapp/tag/index",
+    "van-tab": "@vant/weapp/tab/index",
+    "van-tabs": "@vant/weapp/tabs/index",
+    "van-toast": "@vant/weapp/toast/index"
+  }
+}

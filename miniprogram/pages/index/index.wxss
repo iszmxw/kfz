@@ -1,0 +1,316 @@
+.hero {
+  padding: 18px 2px 8px;
+}
+
+.kicker,
+.title,
+.scan-title,
+.scan-subtitle,
+.stat-num,
+.stat-label,
+.decision-mark,
+.decision-title,
+.decision-reason,
+.book-title,
+.book-meta,
+.summary-value,
+.summary-label,
+.history-title,
+.history-meta,
+.history-price,
+.error-title,
+.error-desc {
+  display: block;
+}
+
+.kicker {
+  color: #6f7c8e;
+  font-size: 13px;
+}
+
+.title {
+  margin-top: 4px;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.stat-box {
+  padding: 11px 10px;
+  background: #ffffff;
+  border: 1px solid #e7e9ee;
+  border-radius: 8px;
+}
+
+.stat-num {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-label {
+  margin-top: 6px;
+  color: #6f7c8e;
+  font-size: 12px;
+}
+
+.scan-card {
+  padding: 18px 14px;
+  text-align: center;
+}
+
+.scan-button {
+  width: 168px !important;
+  height: 168px !important;
+  border-radius: 50% !important;
+  box-shadow: 0 12px 28px rgba(22, 119, 255, 0.28);
+}
+
+.scan-icon {
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.scan-title {
+  margin-top: 13px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.scan-subtitle {
+  margin-top: 6px;
+  color: #6f7c8e;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.weak-tip {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff8e8;
+  color: #b45309;
+  border: 1px solid #f1d7a4;
+  font-size: 13px;
+  text-align: left;
+}
+
+.quick-row,
+.manual-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.manual-actions {
+  grid-template-columns: repeat(2, 1fr);
+  padding: 12px;
+}
+
+.quick-btn {
+  min-height: 44px !important;
+  border-radius: 8px !important;
+}
+
+.cell-card,
+.debug-card {
+  margin-top: 12px;
+  border: 1px solid #e7e9ee;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.result-card {
+  margin-top: 8px;
+}
+
+.decision-hero {
+  padding: 24px 16px 18px;
+  text-align: center;
+  border-bottom: 1px solid #e7e9ee;
+}
+
+.result-card.accept .decision-hero {
+  background: #e8f7f1;
+  color: #0f9f6e;
+}
+
+.result-card.reject .decision-hero {
+  background: #faeeee;
+  color: #b93d3d;
+}
+
+.result-card.review .decision-hero {
+  background: #fff4df;
+  color: #d97706;
+}
+
+.decision-mark {
+  font-size: 64px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.review .decision-mark {
+  font-size: 42px;
+  line-height: 1.2;
+}
+
+.decision-title {
+  margin-top: 8px;
+  color: #17212f;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.decision-price {
+  margin-top: 12px;
+  color: #17212f;
+  font-size: 15px;
+}
+
+.price {
+  font-size: 30px;
+  font-weight: 900;
+}
+
+.decision-reason {
+  margin: 6px auto 0;
+  max-width: 280px;
+  color: #6f7c8e;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.duplicate-tag {
+  margin-top: 10px;
+}
+
+.book-row {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 10px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.cover {
+  width: 54px;
+  height: 74px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  background: linear-gradient(145deg, #345995, #14a085);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.cover.reject {
+  background: linear-gradient(145deg, #655b5b, #b93d3d);
+}
+
+.cover.review {
+  background: linear-gradient(145deg, #5b6582, #d97706);
+}
+
+.book-info {
+  min-width: 0;
+}
+
+.book-title {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.book-meta {
+  margin-top: 5px;
+  color: #6f7c8e;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid #e7e9ee;
+}
+
+.summary-item {
+  padding: 12px 6px;
+  text-align: center;
+  border-right: 1px solid #e7e9ee;
+}
+
+.summary-item:last-child {
+  border-right: 0;
+}
+
+.summary-value {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.summary-label {
+  margin-top: 5px;
+  color: #6f7c8e;
+  font-size: 11px;
+}
+
+.history-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: start;
+  padding: 13px 14px;
+}
+
+.history-title {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.history-meta {
+  margin-top: 5px;
+  color: #6f7c8e;
+  font-size: 12px;
+}
+
+.history-price {
+  margin-top: 7px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.history-tag {
+  margin-top: 2px;
+}
+
+.error-panel {
+  padding: 28px 18px 22px;
+}
+
+.error-title {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.error-desc {
+  margin: 10px 0 22px;
+  color: #6f7c8e;
+  font-size: 14px;
+  line-height: 1.5;
+}
