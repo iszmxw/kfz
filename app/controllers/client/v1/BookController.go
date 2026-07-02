@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"goapi/pkg/echo"
 	"goapi/pkg/helpers"
 	"goapi/pkg/mysql"
+	"gorm.io/gorm"
 )
 
 const (
@@ -157,6 +159,9 @@ func (h *BookController) ensureBook(normalizedISBN string, now time.Time) (model
 func (h *BookController) findIdempotentCheckResponse(clientRequestID string) (response.BookCheckResponse, bool, error) {
 	var scanLog models.ScanLog
 	tx := mysql.DB.Where(models.ScanLogColumns.ClientRequestID+" = ?", clientRequestID).First(&scanLog)
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return response.BookCheckResponse{}, false, nil
+	}
 	if tx.Error != nil {
 		return response.BookCheckResponse{}, false, tx.Error
 	}
@@ -179,6 +184,9 @@ func (h *BookController) findIdempotentCheckResponse(clientRequestID string) (re
 func findBook(normalizedISBN string) (models.Book, bool, error) {
 	var book models.Book
 	tx := mysql.DB.Where(models.BookColumns.Isbn+" = ?", normalizedISBN).First(&book)
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return book, false, nil
+	}
 	if tx.Error != nil {
 		return book, false, tx.Error
 	}
@@ -192,6 +200,9 @@ func latestValidPrice(normalizedISBN string, now time.Time) (models.PriceSnapsho
 		Where("("+models.PriceSnapshotColumns.ExpiresAt+" IS NULL OR "+models.PriceSnapshotColumns.ExpiresAt+" > ?)", now).
 		Order(models.PriceSnapshotColumns.CollectedAt + " DESC").
 		First(&price)
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return price, false, nil
+	}
 	if tx.Error != nil {
 		return price, false, tx.Error
 	}
@@ -205,6 +216,9 @@ func priceByID(priceSnapshotID *string) (models.PriceSnapshot, bool, error) {
 
 	var price models.PriceSnapshot
 	tx := mysql.DB.Where(models.PriceSnapshotColumns.ID+" = ?", *priceSnapshotID).First(&price)
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return price, false, nil
+	}
 	if tx.Error != nil {
 		return price, false, tx.Error
 	}
@@ -217,6 +231,9 @@ func latestScanLog(normalizedISBN string) (models.ScanLog, bool, error) {
 		Where(models.ScanLogColumns.NormalizedIsbn+" = ?", normalizedISBN).
 		Order(models.ScanLogColumns.ScannedAt + " DESC").
 		First(&scanLog)
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		return scanLog, false, nil
+	}
 	if tx.Error != nil {
 		return scanLog, false, tx.Error
 	}
@@ -229,6 +246,9 @@ func duplicateInfo(normalizedISBN, batchID string, now time.Time) (*time.Time, b
 		Where(models.ScanLogColumns.NormalizedIsbn+" = ?", normalizedISBN).
 		Order(models.ScanLogColumns.ScannedAt + " DESC").
 		First(&lastLog)
+	if errors.Is(tx.Error, gorm.ErrRecordNotFound) {
+		tx.Error = nil
+	}
 	if tx.Error != nil {
 		return nil, false, false, tx.Error
 	}
