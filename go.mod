@@ -16,6 +16,7 @@ require (
 	github.com/gorilla/websocket v1.5.1
 	github.com/joho/godotenv v1.5.1
 	github.com/orcaman/concurrent-map v1.0.0
+	github.com/shopspring/decimal v1.4.0
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/viper v1.13.0
 	github.com/unrolled/secure v1.13.0

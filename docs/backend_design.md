@@ -312,9 +312,9 @@ sequenceDiagram
 
 规则：
 
-- 内部统一使用分。
-- 不在业务层使用 float 做金额计算。
-- API 输出时转成元。
+- 数据库金额字段统一使用 `decimal(20,2)`。
+- 业务层使用 `github.com/shopspring/decimal.Decimal` 处理金额。
+- API 输出人民币元。
 
 ### 11.3 Decision
 
@@ -334,13 +334,13 @@ V1 判断规则：
 | 无书籍数据 | `REJECT` |
 | 无价格数据 | `NEED_REVIEW` |
 | 样本数小于 3 | `NEED_REVIEW` |
-| 平均价小于 1000 分 | `REJECT` |
-| 平均价大于等于 1000 分 | `ACCEPT` |
+| 平均价小于 10.00 元 | `REJECT` |
+| 平均价大于等于 10.00 元 | `ACCEPT` |
 
 建议回收价：
 
 ```text
-avg_price_cent * 30 / 100
+avg_price * 30 / 100
 ```
 
 ## 12. 复杂度控制
@@ -410,7 +410,7 @@ table_names: "t_book,t_price_snapshot,t_scan_log"
 
 - ISBN 合法和非法。
 - ISBN 归一化。
-- 金额分转元。
+- 金额按十进制定点口径输出。
 - 回收规则所有分支。
 
 ### 15.2 model/GORM 测试

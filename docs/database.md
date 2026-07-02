@@ -53,20 +53,20 @@ CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
 
 ### 2.4 金额
 
-数据库内金额统一保存为“分”，类型使用 `int`。
+数据库内金额统一使用十进制定点金额口径，MySQL 字段类型使用 `decimal(20,2)`；Go 业务层使用 `github.com/shopspring/decimal.Decimal`。
 
 示例：
 
 | 展示金额 | 数据库存储 |
 | --- | --- |
-| `7.40` 元 | `740` |
-| `24.50` 元 | `2450` |
+| `7.40` 元 | `7.40` |
+| `24.50` 元 | `24.50` |
 
 原因：
 
-- 避免浮点误差。
+- 避免浮点误差，并保留金额小数精度。
 - 便于后续统计汇总。
-- API 层可以统一转换为元。
+- API 层直接按人民币元展示。
 
 ## 3. 数据库初始化
 
@@ -132,9 +132,9 @@ CREATE TABLE IF NOT EXISTS t_price_snapshot (
   id varchar(36) NOT NULL COMMENT '主键',
   isbn varchar(20) NOT NULL COMMENT '关联 book.isbn',
   source varchar(50) NOT NULL COMMENT '价格来源：local_mock/manual/kongfz/external',
-  min_price_cent int NULL COMMENT '最低价，单位分',
-  avg_price_cent int NULL COMMENT '平均价，单位分',
-  max_price_cent int NULL COMMENT '最高价，单位分',
+  min_price decimal(20,2) NULL COMMENT '最低价',
+  avg_price decimal(20,2) NULL COMMENT '平均价',
+  max_price decimal(20,2) NULL COMMENT '最高价',
   sample_count int NOT NULL DEFAULT 0 COMMENT '有效样本数',
   confidence varchar(20) NOT NULL DEFAULT 'NONE' COMMENT 'HIGH/MEDIUM/LOW/NONE',
   raw_url varchar(1000) NULL COMMENT '来源链接',
@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS t_price_snapshot (
 
 - 价格快照不覆盖历史，新增记录为主。
 - 判断接口读取同 ISBN 最新且未过期的快照。
-- `min_price_cent`、`avg_price_cent`、`max_price_cent` 允许为空，用于表达无有效价格。
+- `min_price`、`avg_price`、`max_price` 允许为空，用于表达无有效价格。
 
 ### 4.3 scan_log
 
@@ -170,11 +170,11 @@ CREATE TABLE IF NOT EXISTS t_scan_log (
   operator_id varchar(36) NULL COMMENT '操作员 ID，V2 使用',
   decision varchar(20) NOT NULL COMMENT 'ACCEPT/REJECT/NEED_REVIEW',
   reason varchar(500) NOT NULL COMMENT '判断原因',
-  market_min_price_cent int NULL COMMENT '判断时最低价，单位分',
-  market_avg_price_cent int NULL COMMENT '判断时平均价，单位分',
-  market_max_price_cent int NULL COMMENT '判断时最高价，单位分',
+  market_min_price decimal(20,2) NULL COMMENT '判断时最低价',
+  market_avg_price decimal(20,2) NULL COMMENT '判断时平均价',
+  market_max_price decimal(20,2) NULL COMMENT '判断时最高价',
   market_sample_count int NULL COMMENT '判断时样本数',
-  suggested_recycle_price_cent int NULL COMMENT '建议回收价，单位分',
+  suggested_recycle_price decimal(20,2) NULL COMMENT '建议回收价',
   confidence varchar(20) NOT NULL DEFAULT 'NONE' COMMENT '判断时数据可信度',
   price_snapshot_id varchar(36) NULL COMMENT '使用的价格快照 ID',
   duplicate_recently tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否近期扫过',
@@ -232,16 +232,16 @@ ON DUPLICATE KEY UPDATE
   updated_at = NOW(3);
 
 INSERT INTO t_price_snapshot (
-  id, isbn, source, min_price_cent, avg_price_cent, max_price_cent,
+  id, isbn, source, min_price, avg_price, max_price,
   sample_count, confidence, raw_url, raw_payload_ref, collected_at, expires_at, created_at
 ) VALUES
-  ('price_9787111128069_mock_001', '9787111128069', 'local_mock', 1800, 2450, 3900, 8, 'HIGH', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3)),
-  ('price_9787115428028_mock_001', '9787115428028', 'local_mock', 300, 800, 1200, 6, 'MEDIUM', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3)),
-  ('price_9787300000001_mock_001', '9787300000001', 'local_mock', 1800, 3000, 4500, 1, 'LOW', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3))
+  ('price_9787111128069_mock_001', '9787111128069', 'local_mock', 18.00, 24.50, 39.00, 8, 'HIGH', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3)),
+  ('price_9787115428028_mock_001', '9787115428028', 'local_mock', 3.00, 8.00, 12.00, 6, 'MEDIUM', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3)),
+  ('price_9787300000001_mock_001', '9787300000001', 'local_mock', 18.00, 30.00, 45.00, 1, 'LOW', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3))
 ON DUPLICATE KEY UPDATE
-  min_price_cent = VALUES(min_price_cent),
-  avg_price_cent = VALUES(avg_price_cent),
-  max_price_cent = VALUES(max_price_cent),
+  min_price = VALUES(min_price),
+  avg_price = VALUES(avg_price),
+  max_price = VALUES(max_price),
   sample_count = VALUES(sample_count),
   confidence = VALUES(confidence),
   collected_at = VALUES(collected_at),
@@ -272,7 +272,7 @@ WHERE isbn = ?;
 
 ```sql
 SELECT
-  id, isbn, source, min_price_cent, avg_price_cent, max_price_cent,
+  id, isbn, source, min_price, avg_price, max_price,
   sample_count, confidence, raw_url, raw_payload_ref, collected_at, expires_at, created_at
 FROM t_price_snapshot
 WHERE isbn = ?
@@ -301,8 +301,8 @@ LIMIT 1;
 INSERT INTO t_scan_log (
   id, isbn, normalized_isbn, batch_id, store_id, operator_id,
   decision, reason,
-  market_min_price_cent, market_avg_price_cent, market_max_price_cent,
-  market_sample_count, suggested_recycle_price_cent, confidence,
+  market_min_price, market_avg_price, market_max_price,
+  market_sample_count, suggested_recycle_price, confidence,
   price_snapshot_id, duplicate_recently, duplicate_in_batch,
   client_request_id, scanned_at, created_at
 ) VALUES (
@@ -324,7 +324,7 @@ SELECT
   b.title,
   sl.decision,
   sl.reason,
-  sl.suggested_recycle_price_cent,
+  sl.suggested_recycle_price,
   sl.confidence,
   sl.scanned_at
 FROM t_scan_log sl
@@ -389,5 +389,5 @@ V1 开发阶段：
 - 线上 MySQL 排序规则是否支持 `utf8mb4_0900_ai_ci`。
 - 开发环境是否使用 Docker 启动 MySQL。
 - `client_request_id` 是否 V1 强制要求小程序传入。
-- 金额 API 返回元，数据库存分，这个转换是否由 handler 层统一完成。
+- 金额 API 和数据库都使用人民币元口径，数据库字段类型为 `decimal(20,2)`。
 - `book.title` 是否允许为空；当前规划为必填，缺失书名时应使用“未知书名”占位。

@@ -19,7 +19,7 @@
 开发环境示例：
 
 ```text
-http://localhost:80
+http://127.0.0.1:8888
 ```
 
 接口前缀：
@@ -33,7 +33,7 @@ http://localhost:80
 - 请求体：`application/json`
 - 响应体：`application/json`
 - 时间格式：ISO 8601，例如 `2026-06-30T10:00:00+08:00`
-- 金额单位：API 返回人民币元，数据库保存人民币分
+- 金额单位：API 返回人民币元，数据库使用 `decimal(20,2)` 保存人民币元
 - ISBN：接口入参允许 ISBN-10 或 ISBN-13，后端返回 `normalized_isbn`
 
 ### 2.3 统一响应结构

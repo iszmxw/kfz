@@ -149,13 +149,13 @@ DB_PREFIX: t_
 - `t_price_snapshot`
 - `t_scan_log`
 
-金额字段在数据库中统一使用整数分，例如：
+金额字段在数据库中统一使用十进制定点金额口径，对应 MySQL `decimal(20,2)`；Go 业务层使用 `github.com/shopspring/decimal.Decimal`，例如：
 
-- `avg_price_cent`
-- `min_price_cent`
-- `max_price_cent`
+- `avg_price`
+- `min_price`
+- `max_price`
 
-API 层可以转换成人民币元展示。
+API 层直接按人民币元展示。
 
 ## 模型生成约定
 

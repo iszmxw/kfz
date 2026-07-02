@@ -10,6 +10,7 @@
 - 每一次扫码都新增扫码日志，不覆盖历史。
 - 同一批次内相同 ISBN 可以聚合为数量，也可以保留扫码明细。
 - 价格数据使用快照，不在每次扫码时实时依赖外部采集。
+- 数据库内金额统一使用十进制定点金额口径，对应 MySQL `decimal(20,2)`；Go 业务层使用 `github.com/shopspring/decimal.Decimal`。API 展示层直接返回人民币元。
 - V1 优先保证扫码判断闭环，V2/V3 再扩展门店、账号、库存和订单。
 
 ## 2. 领域对象关系
@@ -146,9 +147,9 @@ erDiagram
 | id | varchar(36) | 是 | 主键 |
 | isbn | varchar(20) | 是 | 关联 `book.isbn` |
 | source | varchar(50) | 是 | 价格来源，如 `local_mock`、`manual`、`kongfz` |
-| min_price | decimal(10,2) | 否 | 最低价 |
-| avg_price | decimal(10,2) | 否 | 平均价 |
-| max_price | decimal(10,2) | 否 | 最高价 |
+| min_price | decimal(20,2) | 否 | 最低价 |
+| avg_price | decimal(20,2) | 否 | 平均价 |
+| max_price | decimal(20,2) | 否 | 最高价 |
 | sample_count | int | 是 | 有效样本数 |
 | confidence | varchar(20) | 是 | 数据可信度：`HIGH`、`MEDIUM`、`LOW`、`NONE` |
 | raw_url | varchar(1000) | 否 | 来源链接 |
@@ -177,11 +178,11 @@ erDiagram
 | operator_id | varchar(36) | 否 | 操作员 ID，V2 使用 |
 | decision | varchar(20) | 是 | 系统判断：`ACCEPT`、`REJECT`、`NEED_REVIEW` |
 | reason | varchar(500) | 是 | 判断原因 |
-| market_min_price | decimal(10,2) | 否 | 判断时使用的最低价 |
-| market_avg_price | decimal(10,2) | 否 | 判断时使用的平均价 |
-| market_max_price | decimal(10,2) | 否 | 判断时使用的最高价 |
+| market_min_price | decimal(20,2) | 否 | 判断时使用的最低价 |
+| market_avg_price | decimal(20,2) | 否 | 判断时使用的平均价 |
+| market_max_price | decimal(20,2) | 否 | 判断时使用的最高价 |
 | market_sample_count | int | 否 | 判断时使用的样本数 |
-| suggested_recycle_price | decimal(10,2) | 否 | 建议回收价 |
+| suggested_recycle_price | decimal(20,2) | 否 | 建议回收价 |
 | confidence | varchar(20) | 是 | 判断时的数据可信度 |
 | price_snapshot_id | varchar(36) | 否 | 使用的价格快照 ID |
 | duplicate_recently | bool | 是 | 是否近期扫过同 ISBN |
@@ -213,7 +214,7 @@ erDiagram
 | accept_count | int | 是 | 可收数量 |
 | reject_count | int | 是 | 不收数量 |
 | review_count | int | 是 | 需人工确认数量 |
-| estimated_total_price | decimal(10,2) | 是 | 预计总回收价 |
+| estimated_total_price | decimal(20,2) | 是 | 预计总回收价 |
 | created_at | datetime | 是 | 创建时间 |
 | submitted_at | datetime | 否 | 提交时间 |
 | updated_at | datetime | 是 | 更新时间 |
@@ -236,8 +237,8 @@ erDiagram
 | quantity | int | 是 | 本批次同 ISBN 数量 |
 | decision | varchar(20) | 是 | 当前聚合判断结果 |
 | reason | varchar(500) | 是 | 判断原因 |
-| suggested_recycle_price | decimal(10,2) | 否 | 单本建议回收价 |
-| subtotal_price | decimal(10,2) | 否 | 小计价格 |
+| suggested_recycle_price | decimal(20,2) | 否 | 单本建议回收价 |
+| subtotal_price | decimal(20,2) | 否 | 小计价格 |
 | first_scan_log_id | varchar(36) | 否 | 首次扫码日志 |
 | last_scan_log_id | varchar(36) | 否 | 最近扫码日志 |
 | created_at | datetime | 是 | 创建时间 |
@@ -262,7 +263,7 @@ erDiagram
 | isbn | varchar(20) | 是 | 冗余 ISBN |
 | operator_id | varchar(36) | 否 | 操作员 ID |
 | manual_decision | varchar(20) | 是 | `ACCEPT` 或 `REJECT` |
-| actual_recycle_price | decimal(10,2) | 否 | 实际回收价 |
+| actual_recycle_price | decimal(20,2) | 否 | 实际回收价 |
 | note | varchar(1000) | 否 | 备注 |
 | created_at | datetime | 是 | 创建时间 |
 
@@ -316,7 +317,7 @@ erDiagram
 | source_scan_log_id | varchar(36) | 否 | 来源扫码日志 |
 | source_batch_id | varchar(36) | 否 | 来源批次 |
 | status | varchar(30) | 是 | `IN_STOCK`、`LISTED`、`SOLD`、`DISCARDED` |
-| recycle_price | decimal(10,2) | 否 | 实际回收价 |
+| recycle_price | decimal(20,2) | 否 | 实际回收价 |
 | label_code | varchar(100) | 否 | 标签码 |
 | stocked_at | datetime | 是 | 入库时间 |
 | updated_at | datetime | 是 | 更新时间 |

@@ -23,6 +23,19 @@ func RegisterClientRoutes(router *gin.RouterGroup) {
 			{
 				demo.GET("/ping.json", clientV1Group.DemoController.Ping)
 			}
+
+			// Book 接口
+			book := V1Route.Group("/book")
+			{
+				book.GET("/check.json", clientV1Group.BookController.Check)
+				book.GET("/detail.json", clientV1Group.BookController.Detail)
+			}
+
+			// Scan 接口
+			scan := V1Route.Group("/scan")
+			{
+				scan.GET("/history.json", clientV1Group.ScanController.History)
+			}
 		}
 
 	}

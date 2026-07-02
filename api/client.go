@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"goapi/bootstrap"
 	"goapi/config"
+	conf "goapi/pkg/config"
 	"goapi/pkg/logger"
 	"net/http"
 	"strings"
@@ -28,7 +29,7 @@ func init() {
 	bootstrap.SetupDB()
 	// 初始化 Redis
 	logger.Info("初始化 Redis")
-	bootstrap.SetupRedis(0)
+	bootstrap.SetupRedis(conf.GetInt("redis.db"))
 	app = gin.New()
 	bootstrap.SetupTemplate(app)
 	// Handling routing errors

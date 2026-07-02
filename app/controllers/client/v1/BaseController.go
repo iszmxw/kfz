@@ -6,4 +6,6 @@ type BaseController struct {
 type Group struct {
 	BaseController
 	DemoController
+	BookController
+	ScanController
 }
