@@ -28,3 +28,62 @@ ON DUPLICATE KEY UPDATE
   confidence = VALUES(confidence),
   collected_at = VALUES(collected_at),
   expires_at = VALUES(expires_at);
+
+INSERT INTO t_recycle_rule (
+  id, version, name, min_accept_avg_price, recycle_rate, min_sample_count,
+  price_valid_days, low_confidence_mode, enabled, created_by, created_at, updated_at
+) VALUES (
+  'rule_default_v1', 'default-v1', '默认回收规则', 10.00, 0.3000, 3,
+  30, 'NEED_REVIEW', 1, 'seed', NOW(3), NOW(3)
+) ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  min_accept_avg_price = VALUES(min_accept_avg_price),
+  recycle_rate = VALUES(recycle_rate),
+  min_sample_count = VALUES(min_sample_count),
+  price_valid_days = VALUES(price_valid_days),
+  low_confidence_mode = VALUES(low_confidence_mode),
+  enabled = VALUES(enabled),
+  updated_at = NOW(3);
+
+INSERT INTO t_admin_role (
+  id, code, name, description, status, created_at, updated_at
+) VALUES
+  ('role_super_admin', 'SUPER_ADMIN', '超级管理员', '拥有全部后台权限', 'ACTIVE', NOW(3), NOW(3)),
+  ('role_operator', 'OPERATOR', '运营人员', '处理人工确认、书籍、价格和导入维护', 'ACTIVE', NOW(3), NOW(3))
+ON DUPLICATE KEY UPDATE
+  name = VALUES(name),
+  description = VALUES(description),
+  status = VALUES(status),
+  updated_at = NOW(3);
+
+INSERT INTO t_admin_menu (
+  id, parent_id, title, path, icon, permission_code, sort, status, created_at, updated_at
+) VALUES
+  ('menu_dashboard', '', '工作台', '/dashboard', 'IconDashboard', 'dashboard:read', 10, 'ACTIVE', NOW(3), NOW(3)),
+  ('menu_manual_review', '', '人工确认', '/manual-review', 'IconCheckCircle', 'manual_review:read', 20, 'ACTIVE', NOW(3), NOW(3)),
+  ('menu_scan_log', '', '扫码日志', '/scan-log', 'IconHistory', 'scan_log:read', 30, 'ACTIVE', NOW(3), NOW(3)),
+  ('menu_book', '', '书籍库', '/book', 'IconBook', 'book:read', 40, 'ACTIVE', NOW(3), NOW(3)),
+  ('menu_price_snapshot', '', '价格快照', '/price-snapshot', 'IconStorage', 'price_snapshot:read', 50, 'ACTIVE', NOW(3), NOW(3)),
+  ('menu_import', '', '导入任务', '/import', 'IconUpload', 'import:read', 60, 'ACTIVE', NOW(3), NOW(3)),
+  ('menu_recycle_rule', '', '规则配置', '/recycle-rule', 'IconSettings', 'recycle_rule:read', 70, 'ACTIVE', NOW(3), NOW(3)),
+  ('menu_system', '', '系统权限', '/system', 'IconSafe', 'system:read', 80, 'ACTIVE', NOW(3), NOW(3))
+ON DUPLICATE KEY UPDATE
+  title = VALUES(title),
+  path = VALUES(path),
+  icon = VALUES(icon),
+  sort = VALUES(sort),
+  status = VALUES(status),
+  updated_at = NOW(3);
+
+INSERT INTO t_admin_role_permission (
+  id, role_id, permission_type, permission_code, created_at
+) VALUES
+  ('rp_super_all', 'role_super_admin', 'API', '*', NOW(3)),
+  ('rp_operator_dashboard', 'role_operator', 'API', 'dashboard:read', NOW(3)),
+  ('rp_operator_manual_review', 'role_operator', 'API', 'manual_review:*', NOW(3)),
+  ('rp_operator_scan_log', 'role_operator', 'API', 'scan_log:read', NOW(3)),
+  ('rp_operator_book', 'role_operator', 'API', 'book:*', NOW(3)),
+  ('rp_operator_price', 'role_operator', 'API', 'price_snapshot:*', NOW(3)),
+  ('rp_operator_import', 'role_operator', 'API', 'import:*', NOW(3))
+ON DUPLICATE KEY UPDATE
+  permission_code = VALUES(permission_code);

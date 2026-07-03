@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"goapi/app/middlewares/common"
 	conf "goapi/pkg/config"
+	"goapi/routes/admin"
 	"goapi/routes/client"
 	"goapi/routes/web"
 	"net/http"
@@ -27,6 +28,8 @@ func SetupRoute(router *gin.Engine) *gin.Engine {
 	})
 	// client 接口
 	client.RegisterClientRoutes(router.Group("/"))
+	// admin 管理后台接口
+	admin.RegisterAdminRoutes(router.Group("/"))
 	// web 相关页面
 	web.RegisterWebRoutes(router.Group("/"))
 	return router

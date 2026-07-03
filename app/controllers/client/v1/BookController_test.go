@@ -25,7 +25,7 @@ func setupControllerTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("open test database: %v", err)
 	}
-	if err := db.AutoMigrate(&models.Book{}, &models.PriceSnapshot{}, &models.ScanLog{}); err != nil {
+	if err := db.AutoMigrate(&models.Book{}, &models.PriceSnapshot{}, &models.ScanLog{}, &models.RecycleRule{}); err != nil {
 		t.Fatalf("migrate test database: %v", err)
 	}
 
@@ -136,6 +136,37 @@ func TestDecideRecycle(t *testing.T) {
 			t.Fatalf("suggested price = %s, want 7.35", suggested.String())
 		}
 	})
+}
+
+func TestDecideRecycleUsesEnabledRuleFromDatabase(t *testing.T) {
+	db := setupControllerTestDB(t)
+	now := time.Now()
+	rule := models.RecycleRule{
+		ID:                "rule_001",
+		Version:           "v-test",
+		Name:              "测试规则",
+		MinAcceptAvgPrice: decimal.RequireFromString("20.00"),
+		RecycleRate:       decimal.RequireFromString("0.25"),
+		MinSampleCount:    5,
+		LowConfidenceMode: "NEED_REVIEW",
+		Enabled:           true,
+		CreatedAt:         now,
+		UpdatedAt:         now,
+	}
+	if err := db.Create(&rule).Error; err != nil {
+		t.Fatalf("create rule: %v", err)
+	}
+
+	book := models.Book{Isbn: "9787111128069", Title: "示例可回收图书", Source: "mock"}
+	price := models.PriceSnapshot{AvgPrice: decimalPtr("40.00"), SampleCount: 6, Confidence: "HIGH"}
+	decision, _, suggested := decideRecycle(book, true, true, price)
+
+	if decision != decisionAccept {
+		t.Fatalf("decision = %s, want %s", decision, decisionAccept)
+	}
+	if suggested == nil || !suggested.Equal(decimal.RequireFromString("10.00")) {
+		t.Fatalf("suggested price = %v, want 10.00", suggested)
+	}
 }
 
 func TestRecordNotFoundHelpersReturnEmptyResults(t *testing.T) {

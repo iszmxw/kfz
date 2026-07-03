@@ -70,3 +70,160 @@ CREATE TABLE IF NOT EXISTS t_scan_log (
     ON UPDATE CASCADE
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='scan log';
+
+CREATE TABLE IF NOT EXISTS t_admin_user (
+  id varchar(36) NOT NULL,
+  username varchar(100) NOT NULL,
+  password_hash varchar(255) NOT NULL,
+  name varchar(100) NOT NULL,
+  status varchar(20) NOT NULL DEFAULT 'ACTIVE',
+  last_login_at datetime(3) NULL,
+  last_login_ip varchar(100) NULL,
+  created_at datetime(3) NOT NULL,
+  updated_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_user_username (username),
+  KEY idx_admin_user_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin user';
+
+CREATE TABLE IF NOT EXISTS t_admin_role (
+  id varchar(36) NOT NULL,
+  code varchar(50) NOT NULL,
+  name varchar(100) NOT NULL,
+  description varchar(500) NULL,
+  status varchar(20) NOT NULL DEFAULT 'ACTIVE',
+  created_at datetime(3) NOT NULL,
+  updated_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_role_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin role';
+
+CREATE TABLE IF NOT EXISTS t_admin_user_role (
+  id varchar(36) NOT NULL,
+  user_id varchar(36) NOT NULL,
+  role_id varchar(36) NOT NULL,
+  created_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_user_role (user_id, role_id),
+  KEY idx_admin_user_role_role (role_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin user role';
+
+CREATE TABLE IF NOT EXISTS t_admin_menu (
+  id varchar(36) NOT NULL,
+  parent_id varchar(36) NOT NULL DEFAULT '',
+  title varchar(100) NOT NULL,
+  path varchar(255) NOT NULL,
+  icon varchar(100) NULL,
+  permission_code varchar(100) NOT NULL,
+  sort int NOT NULL DEFAULT 0,
+  status varchar(20) NOT NULL DEFAULT 'ACTIVE',
+  created_at datetime(3) NOT NULL,
+  updated_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_menu_permission_code (permission_code),
+  KEY idx_admin_menu_parent_sort (parent_id, sort)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin menu';
+
+CREATE TABLE IF NOT EXISTS t_admin_api_permission (
+  id varchar(36) NOT NULL,
+  method varchar(20) NOT NULL,
+  path varchar(255) NOT NULL,
+  permission_code varchar(100) NOT NULL,
+  description varchar(255) NULL,
+  status varchar(20) NOT NULL DEFAULT 'ACTIVE',
+  created_at datetime(3) NOT NULL,
+  updated_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_api_method_path (method, path),
+  KEY idx_admin_api_permission_code (permission_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin api permission';
+
+CREATE TABLE IF NOT EXISTS t_admin_role_permission (
+  id varchar(36) NOT NULL,
+  role_id varchar(36) NOT NULL,
+  permission_type varchar(20) NOT NULL,
+  permission_code varchar(100) NOT NULL,
+  created_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_admin_role_permission (role_id, permission_type, permission_code),
+  KEY idx_admin_role_permission_code (permission_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin role permission';
+
+CREATE TABLE IF NOT EXISTS t_admin_operation_log (
+  id varchar(36) NOT NULL,
+  user_id varchar(36) NOT NULL,
+  username varchar(100) NOT NULL,
+  action varchar(100) NOT NULL,
+  resource varchar(100) NOT NULL,
+  request_brief varchar(1000) NULL,
+  result varchar(20) NOT NULL,
+  ip varchar(100) NULL,
+  created_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_admin_operation_log_user_created_at (user_id, created_at),
+  KEY idx_admin_operation_log_resource_created_at (resource, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin operation log';
+
+CREATE TABLE IF NOT EXISTS t_manual_decision (
+  id varchar(36) NOT NULL,
+  scan_log_id varchar(36) NOT NULL,
+  isbn varchar(20) NOT NULL,
+  admin_user_id varchar(36) NOT NULL,
+  manual_decision varchar(20) NOT NULL,
+  actual_recycle_price decimal(20,2) NULL,
+  note varchar(1000) NULL,
+  created_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_manual_decision_scan_log (scan_log_id),
+  KEY idx_manual_decision_isbn_created_at (isbn, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='manual decision';
+
+CREATE TABLE IF NOT EXISTS t_recycle_rule (
+  id varchar(36) NOT NULL,
+  version varchar(50) NOT NULL,
+  name varchar(100) NOT NULL,
+  min_accept_avg_price decimal(20,2) NOT NULL,
+  recycle_rate decimal(10,4) NOT NULL,
+  min_sample_count int NOT NULL,
+  price_valid_days int NOT NULL DEFAULT 30,
+  low_confidence_mode varchar(20) NOT NULL DEFAULT 'NEED_REVIEW',
+  enabled tinyint(1) NOT NULL DEFAULT 0,
+  created_by varchar(36) NULL,
+  created_at datetime(3) NOT NULL,
+  updated_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_recycle_rule_version (version),
+  KEY idx_recycle_rule_enabled_updated_at (enabled, updated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='recycle rule';
+
+CREATE TABLE IF NOT EXISTS t_import_task (
+  id varchar(36) NOT NULL,
+  file_name varchar(255) NOT NULL,
+  file_type varchar(20) NOT NULL,
+  status varchar(20) NOT NULL,
+  total_rows int NOT NULL DEFAULT 0,
+  success_rows int NOT NULL DEFAULT 0,
+  failed_rows int NOT NULL DEFAULT 0,
+  created_by varchar(36) NOT NULL,
+  error_message varchar(1000) NULL,
+  created_at datetime(3) NOT NULL,
+  completed_at datetime(3) NULL,
+  PRIMARY KEY (id),
+  KEY idx_import_task_created_at (created_at),
+  KEY idx_import_task_status_created_at (status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='import task';
+
+CREATE TABLE IF NOT EXISTS t_import_task_row (
+  id varchar(36) NOT NULL,
+  task_id varchar(36) NOT NULL,
+  row_number int NOT NULL,
+  isbn varchar(20) NULL,
+  title varchar(255) NULL,
+  valid tinyint(1) NOT NULL DEFAULT 0,
+  error_message varchar(1000) NULL,
+  raw_payload json NULL,
+  created_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  KEY idx_import_task_row_task_row_number (task_id, row_number),
+  KEY idx_import_task_row_valid (task_id, valid)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='import task row';

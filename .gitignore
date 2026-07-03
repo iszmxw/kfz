@@ -1,4 +1,8 @@
 .tmp/
+.superpowers/
+.worktrees/
 miniprogram/node_modules/
 miniprogram/miniprogram_npm/
 miniprogram/dist/
+admin/node_modules/
+admin/dist/

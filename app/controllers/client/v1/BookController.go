@@ -10,6 +10,7 @@ import (
 	"goapi/app/models"
 	"goapi/app/requests"
 	"goapi/app/response"
+	"goapi/app/services/recycle"
 	"goapi/pkg/echo"
 	"goapi/pkg/helpers"
 	"goapi/pkg/mysql"
@@ -21,11 +22,6 @@ const (
 	decisionReject     = "REJECT"
 	decisionNeedReview = "NEED_REVIEW"
 	confidenceNone     = "NONE"
-)
-
-var (
-	minAcceptAvgPrice = decimal.RequireFromString("10.00")
-	recycleRate       = decimal.RequireFromString("0.30")
 )
 
 type BookController struct {
@@ -321,21 +317,43 @@ func buildScanLog(req requests.BookCheck, normalizedISBN, decision, reason strin
 }
 
 func decideRecycle(book models.Book, bookExisted bool, hasPrice bool, price models.PriceSnapshot) (string, string, *decimal.Decimal) {
-	if !bookExisted || book.Source == "scan" {
-		return decisionReject, "未找到书籍基础信息", nil
-	}
-	if !hasPrice || price.AvgPrice == nil || price.SampleCount <= 0 {
-		return decisionNeedReview, "暂无有效价格数据，需要人工确认", nil
-	}
-	if price.SampleCount < 3 || price.Confidence == "LOW" || price.Confidence == confidenceNone {
-		return decisionNeedReview, "价格样本不足或可信度偏低，需要人工确认", nil
-	}
-	if price.AvgPrice.LessThan(minAcceptAvgPrice) {
-		return decisionReject, "二手市场均价低于回收规则", nil
+	result := recycle.Decide(
+		recycle.BookInput{Exists: bookExisted, Source: book.Source},
+		recycle.PriceInput{
+			HasPrice:    hasPrice,
+			AvgPrice:    price.AvgPrice,
+			SampleCount: price.SampleCount,
+			Confidence:  price.Confidence,
+		},
+		activeRecycleRule(),
+	)
+	return result.Decision, result.Reason, result.SuggestedRecyclePrice
+}
+
+func activeRecycleRule() recycle.Rule {
+	rule := recycle.DefaultRule()
+	if mysql.DB == nil {
+		return rule
 	}
 
-	suggested := price.AvgPrice.Mul(recycleRate).Round(2)
-	return decisionAccept, "二手市场均价满足回收规则", &suggested
+	var active models.RecycleRule
+	tx := mysql.DB.
+		Where("enabled = ?", true).
+		Order("updated_at DESC").
+		First(&active)
+	if tx.Error != nil || tx.RowsAffected == 0 {
+		return rule
+	}
+	if !active.MinAcceptAvgPrice.IsZero() {
+		rule.MinAcceptAvgPrice = active.MinAcceptAvgPrice
+	}
+	if !active.RecycleRate.IsZero() {
+		rule.RecycleRate = active.RecycleRate
+	}
+	if active.MinSampleCount > 0 {
+		rule.MinSampleCount = active.MinSampleCount
+	}
+	return rule
 }
 
 func buildBookCheckResponse(book models.Book, scanLog models.ScanLog, price models.PriceSnapshot, hasPrice bool, lastScannedAt *time.Time, duplicateInBatch bool) response.BookCheckResponse {
