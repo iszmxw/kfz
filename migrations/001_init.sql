@@ -216,7 +216,7 @@ CREATE TABLE IF NOT EXISTS t_import_task (
 CREATE TABLE IF NOT EXISTS t_import_task_row (
   id varchar(36) NOT NULL,
   task_id varchar(36) NOT NULL,
-  row_number int NOT NULL,
+  row_no int NOT NULL,
   isbn varchar(20) NULL,
   title varchar(255) NULL,
   valid tinyint(1) NOT NULL DEFAULT 0,
@@ -224,6 +224,6 @@ CREATE TABLE IF NOT EXISTS t_import_task_row (
   raw_payload json NULL,
   created_at datetime(3) NOT NULL,
   PRIMARY KEY (id),
-  KEY idx_import_task_row_task_row_number (task_id, row_number),
+  KEY idx_import_task_row_task_row_no (task_id, row_no),
   KEY idx_import_task_row_valid (task_id, valid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='import task row';

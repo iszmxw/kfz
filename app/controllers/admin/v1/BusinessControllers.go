@@ -381,7 +381,7 @@ func (h *ImportController) Detail(c *gin.Context) {
 		return
 	}
 	var rows []models.ImportTaskRow
-	if err := mysql.DB.Where("task_id = ?", taskID).Order("row_number ASC").Find(&rows).Error; err != nil {
+	if err := mysql.DB.Where("task_id = ?", taskID).Order("row_no ASC").Find(&rows).Error; err != nil {
 		echo.Error(c, "Failed", err.Error())
 		return
 	}

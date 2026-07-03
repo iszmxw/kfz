@@ -162,7 +162,7 @@ func (m *ImportTask) TableName() string {
 type ImportTaskRow struct {
 	ID           string    `gorm:"primaryKey;column:id" json:"id"`
 	TaskID       string    `gorm:"column:task_id" json:"taskId"`
-	RowNumber    int       `gorm:"column:row_number" json:"rowNumber"`
+	RowNumber    int       `gorm:"column:row_no" json:"rowNumber"`
 	Isbn         string    `gorm:"column:isbn" json:"isbn"`
 	Title        string    `gorm:"column:title" json:"title"`
 	Valid        bool      `gorm:"column:valid" json:"valid"`
