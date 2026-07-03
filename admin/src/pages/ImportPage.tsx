@@ -4,7 +4,7 @@ import { get, request } from '../api';
 import type { PageResponse } from '../types';
 
 interface ImportTask {
-  id: string;
+  id: number;
   fileName?: string;
   file_name?: string;
   status: string;

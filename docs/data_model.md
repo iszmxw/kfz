@@ -32,7 +32,8 @@ erDiagram
     STORE ||--o{ INVENTORY_ITEM : owns
 
     BOOK {
-        string isbn PK
+        int id PK
+        string isbn UK
         string title
         string author
         string publisher
@@ -43,7 +44,7 @@ erDiagram
     }
 
     PRICE_SNAPSHOT {
-        string id PK
+        int id PK
         string isbn FK
         string source
         decimal min_price
@@ -55,7 +56,7 @@ erDiagram
     }
 
     SCAN_LOG {
-        string id PK
+        int id PK
         string isbn FK
         string batch_id FK
         string decision
@@ -65,7 +66,7 @@ erDiagram
     }
 
     SCAN_BATCH {
-        string id PK
+        int id PK
         string status
         string store_id FK
         string operator_id FK
@@ -74,8 +75,8 @@ erDiagram
     }
 
     BATCH_ITEM {
-        string id PK
-        string batch_id FK
+        int id PK
+        int batch_id FK
         string isbn FK
         int quantity
         string decision
@@ -83,8 +84,8 @@ erDiagram
     }
 
     MANUAL_DECISION {
-        string id PK
-        string scan_log_id FK
+        int id PK
+        int scan_log_id FK
         string decision
         decimal actual_recycle_price
         string note
@@ -92,20 +93,20 @@ erDiagram
     }
 
     STORE {
-        string id PK
+        int id PK
         string name
         string status
     }
 
     OPERATOR {
-        string id PK
-        string store_id FK
+        int id PK
+        int store_id FK
         string name
         string role
     }
 
     INVENTORY_ITEM {
-        string id PK
+        int id PK
         string isbn FK
         string store_id FK
         string status
@@ -122,7 +123,8 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| isbn | varchar(20) | 是 | ISBN，主键，建议存归一化后的 10 位或 13 位 |
+| id | bigint unsigned | 是 | 自增主键 |
+| isbn | varchar(20) | 是 | ISBN，唯一业务键，建议存归一化后的 10 位或 13 位 |
 | title | varchar(255) | 是 | 书名 |
 | author | varchar(255) | 否 | 作者 |
 | publisher | varchar(255) | 否 | 出版社 |
@@ -134,7 +136,7 @@ erDiagram
 
 约束：
 
-- `isbn` 唯一。
+- `id` 为自增主键，`isbn` 唯一。
 - 同一本 ISBN 重复扫码时不重复创建 `book`。
 - 书籍信息更新不影响历史扫码日志中已保存的判断结果。
 
@@ -144,7 +146,7 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| id | varchar(36) | 是 | 主键 |
+| id | bigint unsigned | 是 | 自增主键 |
 | isbn | varchar(20) | 是 | 关联 `book.isbn` |
 | source | varchar(50) | 是 | 价格来源，如 `local_mock`、`manual`、`kongfz` |
 | min_price | decimal(20,2) | 否 | 最低价 |
@@ -170,7 +172,7 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| id | varchar(36) | 是 | 主键 |
+| id | bigint unsigned | 是 | 自增主键 |
 | isbn | varchar(20) | 是 | 扫描到的 ISBN |
 | normalized_isbn | varchar(20) | 是 | 归一化后的 ISBN |
 | batch_id | varchar(36) | 否 | 所属批次，V1 可为空 |
@@ -184,7 +186,7 @@ erDiagram
 | market_sample_count | int | 否 | 判断时使用的样本数 |
 | suggested_recycle_price | decimal(20,2) | 否 | 建议回收价 |
 | confidence | varchar(20) | 是 | 判断时的数据可信度 |
-| price_snapshot_id | varchar(36) | 否 | 使用的价格快照 ID |
+| price_snapshot_id | bigint unsigned | 否 | 使用的价格快照 ID |
 | duplicate_recently | bool | 是 | 是否近期扫过同 ISBN |
 | duplicate_in_batch | bool | 是 | 是否当前批次重复 |
 | client_request_id | varchar(64) | 否 | 小程序请求幂等 ID |
@@ -206,9 +208,9 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| id | varchar(36) | 是 | 主键 |
-| store_id | varchar(36) | 否 | 门店 ID |
-| operator_id | varchar(36) | 否 | 操作员 ID |
+| id | bigint unsigned | 是 | 自增主键 |
+| store_id | bigint unsigned | 否 | 门店 ID |
+| operator_id | bigint unsigned | 否 | 操作员 ID |
 | status | varchar(20) | 是 | `DRAFT`、`SUBMITTED`、`CANCELLED` |
 | total_count | int | 是 | 总数量 |
 | accept_count | int | 是 | 可收数量 |
@@ -230,8 +232,8 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| id | varchar(36) | 是 | 主键 |
-| batch_id | varchar(36) | 是 | 关联 `scan_batch.id` |
+| id | bigint unsigned | 是 | 自增主键 |
+| batch_id | bigint unsigned | 是 | 关联 `scan_batch.id` |
 | isbn | varchar(20) | 是 | 关联 `book.isbn` |
 | title | varchar(255) | 否 | 冗余书名，便于列表展示 |
 | quantity | int | 是 | 本批次同 ISBN 数量 |
@@ -239,8 +241,8 @@ erDiagram
 | reason | varchar(500) | 是 | 判断原因 |
 | suggested_recycle_price | decimal(20,2) | 否 | 单本建议回收价 |
 | subtotal_price | decimal(20,2) | 否 | 小计价格 |
-| first_scan_log_id | varchar(36) | 否 | 首次扫码日志 |
-| last_scan_log_id | varchar(36) | 否 | 最近扫码日志 |
+| first_scan_log_id | bigint unsigned | 否 | 首次扫码日志 |
+| last_scan_log_id | bigint unsigned | 否 | 最近扫码日志 |
 | created_at | datetime | 是 | 创建时间 |
 | updated_at | datetime | 是 | 更新时间 |
 
@@ -257,11 +259,11 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| id | varchar(36) | 是 | 主键 |
-| scan_log_id | varchar(36) | 是 | 关联扫码日志 |
-| batch_item_id | varchar(36) | 否 | 关联批次明细 |
+| id | bigint unsigned | 是 | 自增主键 |
+| scan_log_id | bigint unsigned | 是 | 关联扫码日志 |
+| batch_item_id | bigint unsigned | 否 | 关联批次明细 |
 | isbn | varchar(20) | 是 | 冗余 ISBN |
-| operator_id | varchar(36) | 否 | 操作员 ID |
+| operator_id | bigint unsigned | 否 | 操作员 ID |
 | manual_decision | varchar(20) | 是 | `ACCEPT` 或 `REJECT` |
 | actual_recycle_price | decimal(20,2) | 否 | 实际回收价 |
 | note | varchar(1000) | 否 | 备注 |
@@ -280,7 +282,7 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| id | varchar(36) | 是 | 主键 |
+| id | bigint unsigned | 是 | 自增主键 |
 | name | varchar(100) | 是 | 门店名称 |
 | code | varchar(50) | 否 | 门店编码 |
 | status | varchar(20) | 是 | `ACTIVE`、`DISABLED` |
@@ -293,8 +295,8 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| id | varchar(36) | 是 | 主键 |
-| store_id | varchar(36) | 是 | 关联门店 |
+| id | bigint unsigned | 是 | 自增主键 |
+| store_id | bigint unsigned | 是 | 关联门店 |
 | name | varchar(100) | 是 | 操作员姓名 |
 | mobile | varchar(30) | 否 | 手机号 |
 | openid | varchar(128) | 否 | 微信 openid |
@@ -311,11 +313,11 @@ erDiagram
 
 | 字段 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| id | varchar(36) | 是 | 主键，库存 ID |
+| id | bigint unsigned | 是 | 自增主键，库存 ID |
 | isbn | varchar(20) | 是 | 关联 `book.isbn` |
-| store_id | varchar(36) | 是 | 所属门店 |
-| source_scan_log_id | varchar(36) | 否 | 来源扫码日志 |
-| source_batch_id | varchar(36) | 否 | 来源批次 |
+| store_id | bigint unsigned | 是 | 所属门店 |
+| source_scan_log_id | bigint unsigned | 否 | 来源扫码日志 |
+| source_batch_id | bigint unsigned | 否 | 来源批次 |
 | status | varchar(30) | 是 | `IN_STOCK`、`LISTED`、`SOLD`、`DISCARDED` |
 | recycle_price | decimal(20,2) | 否 | 实际回收价 |
 | label_code | varchar(100) | 否 | 标签码 |
@@ -459,9 +461,12 @@ table_names: "t_book,t_price_snapshot,t_scan_log"
 
 ## 12. 待确认问题
 
-- V1 数据库使用 MySQL 8.4。
 - ISBN 是否统一保存 ISBN-13，ISBN-10 是否转换。
-- 无价格数据时默认 `REJECT` 还是 `NEED_REVIEW`。
 - 价格快照默认有效期是 7 天、30 天还是手动刷新。
-- `client_request_id` 是否由小程序生成。
 - V2 批次提交后是否允许撤销或修改。
+
+已确定规则：
+
+- V1 数据库使用 MySQL 8.4。
+- 无价格数据时默认 `NEED_REVIEW`。
+- `client_request_id` 由小程序生成，后端作为可选幂等键处理。

@@ -3,7 +3,7 @@ package admin
 import "goapi/app/response"
 
 type Session struct {
-	UserID      string   `json:"user_id"`
+	UserID      uint64   `json:"user_id"`
 	Username    string   `json:"username"`
 	Name        string   `json:"name"`
 	Status      string   `json:"status"`

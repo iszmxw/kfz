@@ -1,14 +1,14 @@
 package response
 
 type AdminLoginResponse struct {
-	Token       string        `json:"token"`
-	User        AdminUserDTO  `json:"user"`
-	Permissions []string      `json:"permissions"`
+	Token       string         `json:"token"`
+	User        AdminUserDTO   `json:"user"`
+	Permissions []string       `json:"permissions"`
 	Menus       []AdminMenuDTO `json:"menus"`
 }
 
 type AdminUserDTO struct {
-	ID       string   `json:"id"`
+	ID       uint64   `json:"id"`
 	Username string   `json:"username"`
 	Name     string   `json:"name"`
 	Status   string   `json:"status"`
@@ -16,13 +16,26 @@ type AdminUserDTO struct {
 }
 
 type AdminMenuDTO struct {
-	ID             string         `json:"id"`
-	ParentID       string         `json:"parent_id"`
+	ID             uint64         `json:"id"`
+	ParentID       uint64         `json:"parent_id"`
 	Title          string         `json:"title"`
 	Path           string         `json:"path"`
 	Icon           string         `json:"icon"`
 	PermissionCode string         `json:"permission_code"`
 	Children       []AdminMenuDTO `json:"children,omitempty"`
+}
+
+type AdminUserListItem struct {
+	ID          uint64   `json:"id"`
+	Username    string   `json:"username"`
+	Name        string   `json:"name"`
+	Status      string   `json:"status"`
+	RoleIDs     []uint64 `json:"roleIds"`
+	Roles       []string `json:"roles"`
+	LastLoginAt *string  `json:"lastLoginAt"`
+	LastLoginIP string   `json:"lastLoginIp"`
+	CreatedAt   string   `json:"createdAt"`
+	UpdatedAt   string   `json:"updatedAt"`
 }
 
 type AdminPageResponse struct {

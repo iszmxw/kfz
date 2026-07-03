@@ -7,7 +7,7 @@ import (
 )
 
 type AdminUser struct {
-	ID           string     `gorm:"primaryKey;column:id" json:"id"`
+	ID           uint64     `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
 	Username     string     `gorm:"column:username" json:"username"`
 	PasswordHash string     `gorm:"column:password_hash" json:"-"`
 	Name         string     `gorm:"column:name" json:"name"`
@@ -23,7 +23,7 @@ func (m *AdminUser) TableName() string {
 }
 
 type AdminRole struct {
-	ID          string    `gorm:"primaryKey;column:id" json:"id"`
+	ID          uint64    `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
 	Code        string    `gorm:"column:code" json:"code"`
 	Name        string    `gorm:"column:name" json:"name"`
 	Description string    `gorm:"column:description" json:"description"`
@@ -37,9 +37,9 @@ func (m *AdminRole) TableName() string {
 }
 
 type AdminUserRole struct {
-	ID        string    `gorm:"primaryKey;column:id" json:"id"`
-	UserID    string    `gorm:"column:user_id" json:"userId"`
-	RoleID    string    `gorm:"column:role_id" json:"roleId"`
+	ID        uint64    `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
+	UserID    uint64    `gorm:"column:user_id" json:"userId"`
+	RoleID    uint64    `gorm:"column:role_id" json:"roleId"`
 	CreatedAt time.Time `gorm:"column:created_at" json:"createdAt"`
 }
 
@@ -48,8 +48,8 @@ func (m *AdminUserRole) TableName() string {
 }
 
 type AdminMenu struct {
-	ID             string    `gorm:"primaryKey;column:id" json:"id"`
-	ParentID       string    `gorm:"column:parent_id" json:"parentId"`
+	ID             uint64    `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
+	ParentID       uint64    `gorm:"column:parent_id" json:"parentId"`
 	Title          string    `gorm:"column:title" json:"title"`
 	Path           string    `gorm:"column:path" json:"path"`
 	Icon           string    `gorm:"column:icon" json:"icon"`
@@ -65,7 +65,7 @@ func (m *AdminMenu) TableName() string {
 }
 
 type AdminAPIPermission struct {
-	ID             string    `gorm:"primaryKey;column:id" json:"id"`
+	ID             uint64    `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
 	Method         string    `gorm:"column:method" json:"method"`
 	Path           string    `gorm:"column:path" json:"path"`
 	PermissionCode string    `gorm:"column:permission_code" json:"permissionCode"`
@@ -80,8 +80,8 @@ func (m *AdminAPIPermission) TableName() string {
 }
 
 type AdminRolePermission struct {
-	ID             string    `gorm:"primaryKey;column:id" json:"id"`
-	RoleID         string    `gorm:"column:role_id" json:"roleId"`
+	ID             uint64    `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
+	RoleID         uint64    `gorm:"column:role_id" json:"roleId"`
 	PermissionType string    `gorm:"column:permission_type" json:"permissionType"`
 	PermissionCode string    `gorm:"column:permission_code" json:"permissionCode"`
 	CreatedAt      time.Time `gorm:"column:created_at" json:"createdAt"`
@@ -92,8 +92,8 @@ func (m *AdminRolePermission) TableName() string {
 }
 
 type AdminOperationLog struct {
-	ID           string    `gorm:"primaryKey;column:id" json:"id"`
-	UserID       string    `gorm:"column:user_id" json:"userId"`
+	ID           uint64    `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
+	UserID       uint64    `gorm:"column:user_id" json:"userId"`
 	Username     string    `gorm:"column:username" json:"username"`
 	Action       string    `gorm:"column:action" json:"action"`
 	Resource     string    `gorm:"column:resource" json:"resource"`
@@ -108,10 +108,10 @@ func (m *AdminOperationLog) TableName() string {
 }
 
 type ManualDecision struct {
-	ID                 string           `gorm:"primaryKey;column:id" json:"id"`
-	ScanLogID          string           `gorm:"column:scan_log_id" json:"scanLogId"`
+	ID                 uint64           `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
+	ScanLogID          uint64           `gorm:"column:scan_log_id" json:"scanLogId"`
 	Isbn               string           `gorm:"column:isbn" json:"isbn"`
-	AdminUserID        string           `gorm:"column:admin_user_id" json:"adminUserId"`
+	AdminUserID        uint64           `gorm:"column:admin_user_id" json:"adminUserId"`
 	ManualDecision     string           `gorm:"column:manual_decision" json:"manualDecision"`
 	ActualRecyclePrice *decimal.Decimal `gorm:"column:actual_recycle_price;type:decimal(20,2)" json:"actualRecyclePrice"`
 	Note               string           `gorm:"column:note" json:"note"`
@@ -123,7 +123,7 @@ func (m *ManualDecision) TableName() string {
 }
 
 type RecycleRule struct {
-	ID                string          `gorm:"primaryKey;column:id" json:"id"`
+	ID                uint64          `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
 	Version           string          `gorm:"column:version" json:"version"`
 	Name              string          `gorm:"column:name" json:"name"`
 	MinAcceptAvgPrice decimal.Decimal `gorm:"column:min_accept_avg_price;type:decimal(20,2)" json:"minAcceptAvgPrice"`
@@ -132,7 +132,7 @@ type RecycleRule struct {
 	PriceValidDays    int             `gorm:"column:price_valid_days" json:"priceValidDays"`
 	LowConfidenceMode string          `gorm:"column:low_confidence_mode" json:"lowConfidenceMode"`
 	Enabled           bool            `gorm:"column:enabled" json:"enabled"`
-	CreatedBy         string          `gorm:"column:created_by" json:"createdBy"`
+	CreatedBy         uint64          `gorm:"column:created_by" json:"createdBy"`
 	CreatedAt         time.Time       `gorm:"column:created_at" json:"createdAt"`
 	UpdatedAt         time.Time       `gorm:"column:updated_at" json:"updatedAt"`
 }
@@ -142,14 +142,14 @@ func (m *RecycleRule) TableName() string {
 }
 
 type ImportTask struct {
-	ID           string     `gorm:"primaryKey;column:id" json:"id"`
+	ID           uint64     `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
 	FileName     string     `gorm:"column:file_name" json:"fileName"`
 	FileType     string     `gorm:"column:file_type" json:"fileType"`
 	Status       string     `gorm:"column:status" json:"status"`
 	TotalRows    int        `gorm:"column:total_rows" json:"totalRows"`
 	SuccessRows  int        `gorm:"column:success_rows" json:"successRows"`
 	FailedRows   int        `gorm:"column:failed_rows" json:"failedRows"`
-	CreatedBy    string     `gorm:"column:created_by" json:"createdBy"`
+	CreatedBy    uint64     `gorm:"column:created_by" json:"createdBy"`
 	ErrorMessage string     `gorm:"column:error_message" json:"errorMessage"`
 	CreatedAt    time.Time  `gorm:"column:created_at" json:"createdAt"`
 	CompletedAt  *time.Time `gorm:"column:completed_at" json:"completedAt"`
@@ -160,8 +160,8 @@ func (m *ImportTask) TableName() string {
 }
 
 type ImportTaskRow struct {
-	ID           string    `gorm:"primaryKey;column:id" json:"id"`
-	TaskID       string    `gorm:"column:task_id" json:"taskId"`
+	ID           uint64    `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
+	TaskID       uint64    `gorm:"column:task_id" json:"taskId"`
 	RowNumber    int       `gorm:"column:row_no" json:"rowNumber"`
 	Isbn         string    `gorm:"column:isbn" json:"isbn"`
 	Title        string    `gorm:"column:title" json:"title"`

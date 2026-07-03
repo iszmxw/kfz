@@ -104,7 +104,8 @@ migrations/001_init.sql
 
 ```sql
 CREATE TABLE IF NOT EXISTS t_book (
-  isbn varchar(20) NOT NULL COMMENT '归一化后的 ISBN，主键',
+  id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  isbn varchar(20) NOT NULL COMMENT '归一化后的 ISBN',
   title varchar(255) NOT NULL COMMENT '书名',
   author varchar(255) NULL COMMENT '作者',
   publisher varchar(255) NULL COMMENT '出版社',
@@ -113,14 +114,16 @@ CREATE TABLE IF NOT EXISTS t_book (
   source varchar(50) NOT NULL DEFAULT 'manual' COMMENT '数据来源：manual/mock/external',
   created_at datetime(3) NOT NULL,
   updated_at datetime(3) NOT NULL,
-  PRIMARY KEY (isbn),
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_book_isbn (isbn),
   KEY idx_book_title (title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='书籍基础信息';
 ```
 
 设计说明：
 
-- `isbn` 表示书籍品种，不表示具体一本实体书。
+- `id` 是数据库自增主键，便于后台管理和表关联。
+- `isbn` 表示书籍品种，不表示具体一本实体书，并通过唯一索引保证不重复。
 - 同 ISBN 重复扫码时复用此表记录。
 - `title` 建索引用于后续后台搜索，V1 接口可以暂不使用。
 - `t_` 是当前默认 `DB_PREFIX`；如果环境使用其他前缀，物理表名随之调整。
@@ -129,7 +132,7 @@ CREATE TABLE IF NOT EXISTS t_book (
 
 ```sql
 CREATE TABLE IF NOT EXISTS t_price_snapshot (
-  id varchar(36) NOT NULL COMMENT '主键',
+  id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   isbn varchar(20) NOT NULL COMMENT '关联 book.isbn',
   source varchar(50) NOT NULL COMMENT '价格来源：local_mock/manual/kongfz/external',
   min_price decimal(20,2) NULL COMMENT '最低价',
@@ -162,7 +165,7 @@ CREATE TABLE IF NOT EXISTS t_price_snapshot (
 
 ```sql
 CREATE TABLE IF NOT EXISTS t_scan_log (
-  id varchar(36) NOT NULL COMMENT '主键',
+  id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   isbn varchar(20) NOT NULL COMMENT '原始或归一化 ISBN',
   normalized_isbn varchar(20) NOT NULL COMMENT '归一化后的 ISBN',
   batch_id varchar(36) NULL COMMENT '批次 ID，V2 使用',
@@ -176,7 +179,7 @@ CREATE TABLE IF NOT EXISTS t_scan_log (
   market_sample_count int NULL COMMENT '判断时样本数',
   suggested_recycle_price decimal(20,2) NULL COMMENT '建议回收价',
   confidence varchar(20) NOT NULL DEFAULT 'NONE' COMMENT '判断时数据可信度',
-  price_snapshot_id varchar(36) NULL COMMENT '使用的价格快照 ID',
+  price_snapshot_id bigint unsigned NULL COMMENT '使用的价格快照 ID',
   duplicate_recently tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否近期扫过',
   duplicate_in_batch tinyint(1) NOT NULL DEFAULT 0 COMMENT '是否当前批次重复',
   client_request_id varchar(64) NULL COMMENT '小程序请求幂等 ID',
@@ -232,20 +235,12 @@ ON DUPLICATE KEY UPDATE
   updated_at = NOW(3);
 
 INSERT INTO t_price_snapshot (
-  id, isbn, source, min_price, avg_price, max_price,
+  isbn, source, min_price, avg_price, max_price,
   sample_count, confidence, raw_url, raw_payload_ref, collected_at, expires_at, created_at
 ) VALUES
-  ('price_9787111128069_mock_001', '9787111128069', 'local_mock', 18.00, 24.50, 39.00, 8, 'HIGH', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3)),
-  ('price_9787115428028_mock_001', '9787115428028', 'local_mock', 3.00, 8.00, 12.00, 6, 'MEDIUM', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3)),
-  ('price_9787300000001_mock_001', '9787300000001', 'local_mock', 18.00, 30.00, 45.00, 1, 'LOW', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3))
-ON DUPLICATE KEY UPDATE
-  min_price = VALUES(min_price),
-  avg_price = VALUES(avg_price),
-  max_price = VALUES(max_price),
-  sample_count = VALUES(sample_count),
-  confidence = VALUES(confidence),
-  collected_at = VALUES(collected_at),
-  expires_at = VALUES(expires_at);
+  ('9787111128069', 'local_mock', 18.00, 24.50, 39.00, 8, 'HIGH', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3)),
+  ('9787115428028', 'local_mock', 3.00, 8.00, 12.00, 6, 'MEDIUM', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3)),
+  ('9787300000001', 'local_mock', 18.00, 30.00, 45.00, 1, 'LOW', NULL, NULL, NOW(3), DATE_ADD(NOW(3), INTERVAL 30 DAY), NOW(3));
 ```
 
 ### 5.2 Seed 覆盖场景
@@ -299,14 +294,14 @@ LIMIT 1;
 
 ```sql
 INSERT INTO t_scan_log (
-  id, isbn, normalized_isbn, batch_id, store_id, operator_id,
+  isbn, normalized_isbn, batch_id, store_id, operator_id,
   decision, reason,
   market_min_price, market_avg_price, market_max_price,
   market_sample_count, suggested_recycle_price, confidence,
   price_snapshot_id, duplicate_recently, duplicate_in_batch,
   client_request_id, scanned_at, created_at
 ) VALUES (
-  ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?,
   ?, ?,
   ?, ?, ?,
   ?, ?, ?,
@@ -341,10 +336,12 @@ LIMIT ? OFFSET ?;
 V1 可采用简单迁移策略：
 
 1. `migrations/001_init.sql` 只创建表和索引。
-2. `seeds/v1_mock_data.sql` 只插入 mock 数据。
+2. `seeds/v1_mock_data.sql` 插入 V1 mock 数据和开发后台管理员账号。
 3. 服务启动时可以检查表是否存在。
 4. 开发环境允许自动执行 seed。
 5. 生产环境不自动执行 seed。
+
+开发后台 seed 账号为 `admin`，默认密码为 `admin123`。该账号仅用于本地开发和初始化验证，生产环境应改用环境配置或后台用户管理创建正式账号。
 
 后续进入多环境部署时，再引入正式迁移工具，例如：
 

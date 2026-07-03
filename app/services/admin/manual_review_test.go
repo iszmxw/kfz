@@ -40,7 +40,7 @@ func TestCreateManualDecisionDoesNotMutateScanLog(t *testing.T) {
 		t.Fatalf("create book: %v", err)
 	}
 	scan := models.ScanLog{
-		ID:             "scan_001",
+		ID:             1,
 		Isbn:           book.Isbn,
 		NormalizedIsbn: book.Isbn,
 		Decision:       "NEED_REVIEW",
@@ -56,7 +56,7 @@ func TestCreateManualDecisionDoesNotMutateScanLog(t *testing.T) {
 
 	decision, err := CreateManualDecision(ManualDecisionInput{
 		ScanLogID:          scan.ID,
-		AdminUserID:        "admin_001",
+		AdminUserID:        1,
 		ManualDecision:     "ACCEPT",
 		ActualRecyclePrice: &price,
 		Note:               "人工确认可收",
@@ -65,7 +65,7 @@ func TestCreateManualDecisionDoesNotMutateScanLog(t *testing.T) {
 		t.Fatalf("CreateManualDecision err=%v", err)
 	}
 	if decision.ScanLogID != scan.ID {
-		t.Fatalf("scan log id = %s, want %s", decision.ScanLogID, scan.ID)
+		t.Fatalf("scan log id = %d, want %d", decision.ScanLogID, scan.ID)
 	}
 
 	var storedScan models.ScanLog

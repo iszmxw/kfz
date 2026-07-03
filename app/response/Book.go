@@ -27,7 +27,7 @@ type DuplicateInfoDTO struct {
 }
 
 type BookCheckResponse struct {
-	ScanLogID             string           `json:"scan_log_id"`
+	ScanLogID             uint64           `json:"scan_log_id"`
 	Book                  BookDTO          `json:"book"`
 	Decision              string           `json:"decision"`
 	Reason                string           `json:"reason"`

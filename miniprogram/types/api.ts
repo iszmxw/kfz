@@ -36,7 +36,7 @@ export interface DuplicateInfoDTO {
 }
 
 export interface BookCheckResponse {
-  scan_log_id: string;
+  scan_log_id: number;
   book: BookDTO;
   decision: Decision;
   reason: string;
@@ -61,7 +61,7 @@ export interface BookDetailResponse {
 }
 
 export interface ScanHistoryItem {
-  scan_log_id: string;
+  scan_log_id: number;
   isbn: string;
   title: string;
   decision: Decision;

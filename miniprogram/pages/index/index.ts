@@ -107,8 +107,9 @@ Page<IndexData, WechatMiniprogram.Page.CustomOption>({
     });
   },
 
-  onManualISBNChange(event: WechatMiniprogram.CustomEvent<{ value?: string } | string>) {
-    const manualISBN = typeof event.detail === "string" ? event.detail : event.detail.value ?? "";
+  onManualISBNChange(event: WechatMiniprogram.CustomEvent) {
+    const detail = event.detail as { value?: string } | string;
+    const manualISBN = typeof detail === "string" ? detail : detail.value ?? "";
     this.setData({ manualISBN });
   },
 

@@ -144,14 +144,13 @@ func fallbackConfigAdmin(username, password string) (models.AdminUser, bool) {
 		return models.AdminUser{}, false
 	}
 	return models.AdminUser{
-		ID:       "config_admin",
 		Username: defaultUsername,
 		Name:     "超级管理员",
 		Status:   "ACTIVE",
 	}, true
 }
 
-func loadUserRolesAndPermissions(userID string) ([]string, []string, error) {
+func loadUserRolesAndPermissions(userID uint64) ([]string, []string, error) {
 	var roles []models.AdminRole
 	err := mysql.DB.Table((&models.AdminRole{}).TableName()+" AS r").
 		Select("r.*").
@@ -162,7 +161,7 @@ func loadUserRolesAndPermissions(userID string) ([]string, []string, error) {
 		return nil, nil, err
 	}
 
-	roleIDs := make([]string, 0, len(roles))
+	roleIDs := make([]uint64, 0, len(roles))
 	roleCodes := make([]string, 0, len(roles))
 	for _, role := range roles {
 		roleIDs = append(roleIDs, role.ID)

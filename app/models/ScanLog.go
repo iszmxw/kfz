@@ -7,7 +7,7 @@ import (
 )
 
 type ScanLog struct {
-	ID                    string           `gorm:"primaryKey;column:id" json:"id"`                                                 // 主键
+	ID                    uint64           `gorm:"primaryKey;autoIncrement;column:id" json:"id"`                                   // 主键
 	Isbn                  string           `gorm:"column:isbn" json:"isbn"`                                                        // 原始或归一化 ISBN
 	NormalizedIsbn        string           `gorm:"column:normalized_isbn" json:"normalizedIsbn"`                                   // 归一化后的 ISBN
 	BatchID               *string          `gorm:"column:batch_id" json:"batchId"`                                                 // 批次 ID
@@ -21,7 +21,7 @@ type ScanLog struct {
 	MarketSampleCount     *int             `gorm:"column:market_sample_count" json:"marketSampleCount"`                            // 判断时样本数
 	SuggestedRecyclePrice *decimal.Decimal `gorm:"column:suggested_recycle_price;type:decimal(20,2)" json:"suggestedRecyclePrice"` // 建议回收价
 	Confidence            string           `gorm:"column:confidence" json:"confidence"`                                            // 数据可信度
-	PriceSnapshotID       *string          `gorm:"column:price_snapshot_id" json:"priceSnapshotId"`                                // 使用的价格快照 ID
+	PriceSnapshotID       *uint64          `gorm:"column:price_snapshot_id" json:"priceSnapshotId"`                                // 使用的价格快照 ID
 	DuplicateRecently     bool             `gorm:"column:duplicate_recently" json:"duplicateRecently"`                             // 是否近期扫过
 	DuplicateInBatch      bool             `gorm:"column:duplicate_in_batch" json:"duplicateInBatch"`                              // 是否当前批次重复
 	ClientRequestID       *string          `gorm:"column:client_request_id" json:"clientRequestId"`                                // 请求幂等 ID

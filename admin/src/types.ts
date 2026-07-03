@@ -1,5 +1,5 @@
 export interface AdminMenu {
-  id: string;
+  id: number;
   title: string;
   path: string;
   icon: string;
@@ -7,11 +7,31 @@ export interface AdminMenu {
 }
 
 export interface AdminUser {
-  id: string;
+  id: number;
   username: string;
   name: string;
   status: string;
   roles: string[];
+}
+
+export interface AdminRole {
+  id: number;
+  code: string;
+  name: string;
+  description?: string;
+  status: string;
+}
+
+export interface AdminUserListItem {
+  id: number;
+  username: string;
+  name: string;
+  status: string;
+  roleIds?: number[];
+  roles?: string[];
+  lastLoginAt?: string | null;
+  lastLoginIp?: string;
+  createdAt?: string;
 }
 
 export interface LoginResponse {
@@ -43,7 +63,7 @@ export interface Book {
 }
 
 export interface ScanLog {
-  id: string;
+  id: number;
   normalizedIsbn?: string;
   normalized_isbn?: string;
   decision: string;
@@ -56,7 +76,7 @@ export interface ScanLog {
 }
 
 export interface PriceSnapshot {
-  id: string;
+  id: number;
   isbn: string;
   source: string;
   minPrice?: string;

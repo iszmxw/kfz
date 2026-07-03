@@ -205,8 +205,8 @@ func latestValidPrice(normalizedISBN string, now time.Time) (models.PriceSnapsho
 	return price, tx.RowsAffected > 0, nil
 }
 
-func priceByID(priceSnapshotID *string) (models.PriceSnapshot, bool, error) {
-	if priceSnapshotID == nil || *priceSnapshotID == "" {
+func priceByID(priceSnapshotID *uint64) (models.PriceSnapshot, bool, error) {
+	if priceSnapshotID == nil || *priceSnapshotID == 0 {
 		return models.PriceSnapshot{}, false, nil
 	}
 
@@ -282,7 +282,7 @@ func buildScanLog(req requests.BookCheck, normalizedISBN, decision, reason strin
 		clientRequestID = &req.ClientRequestID
 	}
 	var marketSampleCount *int
-	var priceSnapshotID *string
+	var priceSnapshotID *uint64
 	var minPrice, avgPrice, maxPrice *decimal.Decimal
 	confidence := confidenceNone
 	if hasPrice {
@@ -295,7 +295,6 @@ func buildScanLog(req requests.BookCheck, normalizedISBN, decision, reason strin
 	}
 
 	return models.ScanLog{
-		ID:                    helpers.GetUUID(),
 		Isbn:                  req.Isbn,
 		NormalizedIsbn:        normalizedISBN,
 		BatchID:               batchID,

@@ -142,7 +142,7 @@ func TestDecideRecycleUsesEnabledRuleFromDatabase(t *testing.T) {
 	db := setupControllerTestDB(t)
 	now := time.Now()
 	rule := models.RecycleRule{
-		ID:                "rule_001",
+		ID:                1,
 		Version:           "v-test",
 		Name:              "测试规则",
 		MinAcceptAvgPrice: decimal.RequireFromString("20.00"),
@@ -194,7 +194,8 @@ func TestRecordNotFoundHelpersReturnEmptyResults(t *testing.T) {
 		t.Fatalf("duplicateInfo = (%v, %v, %v), want nil,false,false", lastScannedAt, scannedRecently, duplicateInBatch)
 	}
 
-	if _, hasPrice, err := priceByID(stringPtr("missing_price")); err != nil || hasPrice {
+	missingPriceID := uint64(999)
+	if _, hasPrice, err := priceByID(&missingPriceID); err != nil || hasPrice {
 		t.Fatalf("priceByID hasPrice=%v err=%v, want hasPrice=false err=nil", hasPrice, err)
 	}
 
@@ -221,7 +222,7 @@ func TestFindIdempotentCheckResponseReusesExistingScanLog(t *testing.T) {
 	}
 
 	scanLog := models.ScanLog{
-		ID:                    "scan_001",
+		ID:                    1,
 		Isbn:                  book.Isbn,
 		NormalizedIsbn:        book.Isbn,
 		Decision:              decisionAccept,
@@ -244,7 +245,7 @@ func TestFindIdempotentCheckResponseReusesExistingScanLog(t *testing.T) {
 		t.Fatal("findIdempotentCheckResponse found=false, want true")
 	}
 	if resp.ScanLogID != scanLog.ID {
-		t.Fatalf("scan_log_id = %s, want %s", resp.ScanLogID, scanLog.ID)
+		t.Fatalf("scan_log_id = %d, want %d", resp.ScanLogID, scanLog.ID)
 	}
 	if resp.Book.Title != book.Title {
 		t.Fatalf("book title = %q, want %q", resp.Book.Title, book.Title)

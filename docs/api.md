@@ -170,7 +170,7 @@ GET /app/v1/book/check.json?isbn=9787111128069&batch_id=batch_001
   "msg": "success.",
   "reqId": "0b8c0a8e-8d24-49d4-bdf7-52f80dd0d91a",
   "data": {
-    "scan_log_id": "scan_001",
+    "scan_log_id": 1001,
     "book": {
       "isbn": "9787111128069",
       "normalized_isbn": "9787111128069",
@@ -210,7 +210,7 @@ GET /app/v1/book/check.json?isbn=9787111128069&batch_id=batch_001
   "msg": "success.",
   "reqId": "0b8c0a8e-8d24-49d4-bdf7-52f80dd0d91a",
   "data": {
-    "scan_log_id": "scan_002",
+    "scan_log_id": 1002,
     "book": {
       "isbn": "9787111128069",
       "normalized_isbn": "9787111128069",
@@ -339,7 +339,7 @@ GET /app/v1/scan/history.json?page=1&page_size=20&decision=ACCEPT
     "total": 1,
     "items": [
       {
-        "scan_log_id": "scan_001",
+        "scan_log_id": 1001,
         "isbn": "9787111128069",
         "title": "示例书名",
         "decision": "ACCEPT",
@@ -369,7 +369,7 @@ GET /app/v1/scan/history.json?page=1&page_size=20&decision=ACCEPT
 {
   "batch_id": "batch_001",
   "isbn": "9787111128069",
-  "scan_log_id": "scan_002"
+  "scan_log_id": 1002
 }
 ```
 
@@ -403,8 +403,11 @@ V1 可以暂缓：
 
 ## 10. 待确认问题
 
-- V1 是否就启用 `client_request_id` 幂等控制。
 - V1 二手书接口是否全部加入 token 白名单。
-- 无书籍数据时，接口返回 `REJECT` 还是 `NEED_REVIEW`。
-- 无价格数据时，接口返回 `REJECT` 还是 `NEED_REVIEW`。
 - 小程序是否需要离线缓存最近 N 条扫码结果。
+
+已确定规则：
+
+- V1 已启用可选 `client_request_id` 幂等控制。
+- 无书籍基础数据时，接口创建占位书籍并返回 `REJECT`。
+- 有书籍基础数据但无有效价格数据时，接口返回 `NEED_REVIEW`。

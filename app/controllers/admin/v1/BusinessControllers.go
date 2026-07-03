@@ -16,7 +16,6 @@ import (
 	"goapi/app/response"
 	adminSvc "goapi/app/services/admin"
 	"goapi/pkg/echo"
-	"goapi/pkg/helpers"
 	"goapi/pkg/mysql"
 	"gorm.io/gorm"
 )
@@ -39,7 +38,7 @@ func (h *ManualReviewController) List(c *gin.Context) {
 
 func (h *ManualReviewController) Decide(c *gin.Context) {
 	var req struct {
-		ScanLogID          string  `json:"scan_log_id"`
+		ScanLogID          uint64  `json:"scan_log_id"`
 		ManualDecision     string  `json:"manual_decision"`
 		ActualRecyclePrice *string `json:"actual_recycle_price"`
 		Note               string  `json:"note"`
@@ -202,7 +201,6 @@ func (h *PriceSnapshotController) Create(c *gin.Context) {
 		req.Confidence = "NONE"
 	}
 	price := models.PriceSnapshot{
-		ID:          helpers.GetUUID(),
 		Isbn:        isbn,
 		Source:      req.Source,
 		MinPrice:    minPrice,
@@ -261,7 +259,6 @@ func (h *RecycleRuleController) SaveAndEnable(c *gin.Context) {
 	}
 	now := time.Now()
 	rule := models.RecycleRule{
-		ID:                helpers.GetUUID(),
 		Version:           "rule-" + now.Format("20060102150405"),
 		Name:              req.Name,
 		MinAcceptAvgPrice: minAvg,
@@ -314,7 +311,6 @@ func (h *ImportController) Upload(c *gin.Context) {
 	now := time.Now()
 	session := currentSession(c)
 	task := models.ImportTask{
-		ID:          helpers.GetUUID(),
 		FileName:    file.Filename,
 		FileType:    strings.TrimPrefix(strings.ToLower(filepath.Ext(file.Filename)), "."),
 		Status:      "COMPLETED",
@@ -332,7 +328,6 @@ func (h *ImportController) Upload(c *gin.Context) {
 		for _, input := range result.Rows {
 			raw := input.RawPayload
 			row := models.ImportTaskRow{
-				ID:           helpers.GetUUID(),
 				TaskID:       task.ID,
 				RowNumber:    input.RowNumber,
 				Isbn:         input.Isbn,
@@ -351,7 +346,7 @@ func (h *ImportController) Upload(c *gin.Context) {
 					return err
 				}
 				if input.AvgPrice != nil || input.MinPrice != nil || input.MaxPrice != nil {
-					price := models.PriceSnapshot{ID: helpers.GetUUID(), Isbn: input.Isbn, Source: input.Source, MinPrice: input.MinPrice, AvgPrice: input.AvgPrice, MaxPrice: input.MaxPrice, SampleCount: input.SampleCount, Confidence: input.Confidence, CollectedAt: now, CreatedAt: now}
+					price := models.PriceSnapshot{Isbn: input.Isbn, Source: input.Source, MinPrice: input.MinPrice, AvgPrice: input.AvgPrice, MaxPrice: input.MaxPrice, SampleCount: input.SampleCount, Confidence: input.Confidence, CollectedAt: now, CreatedAt: now}
 					if err := tx.Create(&price).Error; err != nil {
 						return err
 					}

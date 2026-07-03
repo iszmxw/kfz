@@ -6,14 +6,13 @@ import (
 
 	"github.com/shopspring/decimal"
 	"goapi/app/models"
-	"goapi/pkg/helpers"
 	"goapi/pkg/mysql"
 	"gorm.io/gorm"
 )
 
 type ManualDecisionInput struct {
-	ScanLogID          string
-	AdminUserID        string
+	ScanLogID          uint64
+	AdminUserID        uint64
 	ManualDecision     string
 	ActualRecyclePrice *decimal.Decimal
 	Note               string
@@ -35,7 +34,6 @@ func CreateManualDecision(input ManualDecisionInput) (models.ManualDecision, err
 
 	now := time.Now()
 	decision := models.ManualDecision{
-		ID:                 helpers.GetUUID(),
 		ScanLogID:          scan.ID,
 		Isbn:               scan.NormalizedIsbn,
 		AdminUserID:        input.AdminUserID,

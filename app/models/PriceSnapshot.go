@@ -7,7 +7,7 @@ import (
 )
 
 type PriceSnapshot struct {
-	ID            string           `gorm:"primaryKey;column:id" json:"id"`                      // 主键
+	ID            uint64           `gorm:"primaryKey;autoIncrement;column:id" json:"id"`        // 主键
 	Isbn          string           `gorm:"column:isbn" json:"isbn"`                             // 关联 book.isbn
 	Source        string           `gorm:"column:source" json:"source"`                         // 价格来源
 	MinPrice      *decimal.Decimal `gorm:"column:min_price;type:decimal(20,2)" json:"minPrice"` // 最低价

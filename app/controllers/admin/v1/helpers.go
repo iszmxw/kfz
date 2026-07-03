@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -86,19 +87,18 @@ func bindJSON(c *gin.Context, target interface{}) error {
 	return decoder.Decode(target)
 }
 
-func recordOperation(c *gin.Context, action, resource, result string, requestBrief string) {
+func recordOperation(c *gin.Context, action, resource, result string, requestBrief any) {
 	session := currentSession(c)
-	if session.UserID == "" || mysql.DB == nil {
+	if session.UserID == 0 || mysql.DB == nil {
 		return
 	}
 	now := time.Now()
 	_ = mysql.DB.Create(&models.AdminOperationLog{
-		ID:           helpers.GetUUID(),
 		UserID:       session.UserID,
 		Username:     session.Username,
 		Action:       action,
 		Resource:     resource,
-		RequestBrief: requestBrief,
+		RequestBrief: fmt.Sprint(requestBrief),
 		Result:       result,
 		IP:           c.ClientIP(),
 		CreatedAt:    now,

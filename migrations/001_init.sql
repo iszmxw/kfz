@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS t_book (
-  isbn varchar(20) NOT NULL COMMENT 'normalized ISBN primary key',
+  id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+  isbn varchar(20) NOT NULL COMMENT 'normalized ISBN',
   title varchar(255) NOT NULL COMMENT 'book title',
   author varchar(255) NULL COMMENT 'author',
   publisher varchar(255) NULL COMMENT 'publisher',
@@ -8,12 +9,13 @@ CREATE TABLE IF NOT EXISTS t_book (
   source varchar(50) NOT NULL DEFAULT 'manual' COMMENT 'data source: manual/mock/external/scan',
   created_at datetime(3) NOT NULL,
   updated_at datetime(3) NOT NULL,
-  PRIMARY KEY (isbn),
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_book_isbn (isbn),
   KEY idx_book_title (title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='book base information';
 
 CREATE TABLE IF NOT EXISTS t_price_snapshot (
-  id varchar(36) NOT NULL COMMENT 'primary key',
+  id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
   isbn varchar(20) NOT NULL COMMENT 'book.isbn',
   source varchar(50) NOT NULL COMMENT 'price source: local_mock/manual/kongfz/external',
   min_price decimal(20,2) NULL COMMENT 'minimum price',
@@ -36,7 +38,7 @@ CREATE TABLE IF NOT EXISTS t_price_snapshot (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='second-hand price snapshot';
 
 CREATE TABLE IF NOT EXISTS t_scan_log (
-  id varchar(36) NOT NULL COMMENT 'primary key',
+  id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
   isbn varchar(20) NOT NULL COMMENT 'raw or normalized ISBN',
   normalized_isbn varchar(20) NOT NULL COMMENT 'normalized ISBN',
   batch_id varchar(36) NULL COMMENT 'batch ID for V2',
@@ -50,7 +52,7 @@ CREATE TABLE IF NOT EXISTS t_scan_log (
   market_sample_count int NULL COMMENT 'market sample count at scan time',
   suggested_recycle_price decimal(20,2) NULL COMMENT 'suggested recycle price',
   confidence varchar(20) NOT NULL DEFAULT 'NONE' COMMENT 'price confidence',
-  price_snapshot_id varchar(36) NULL COMMENT 'price snapshot ID',
+  price_snapshot_id bigint unsigned NULL COMMENT 'price snapshot ID',
   duplicate_recently tinyint(1) NOT NULL DEFAULT 0 COMMENT 'recent duplicate flag',
   duplicate_in_batch tinyint(1) NOT NULL DEFAULT 0 COMMENT 'batch duplicate flag',
   client_request_id varchar(64) NULL COMMENT 'client idempotency request ID',
@@ -72,7 +74,7 @@ CREATE TABLE IF NOT EXISTS t_scan_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='scan log';
 
 CREATE TABLE IF NOT EXISTS t_admin_user (
-  id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
   username varchar(100) NOT NULL,
   password_hash varchar(255) NOT NULL,
   name varchar(100) NOT NULL,
@@ -87,7 +89,7 @@ CREATE TABLE IF NOT EXISTS t_admin_user (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin user';
 
 CREATE TABLE IF NOT EXISTS t_admin_role (
-  id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
   code varchar(50) NOT NULL,
   name varchar(100) NOT NULL,
   description varchar(500) NULL,
@@ -99,9 +101,9 @@ CREATE TABLE IF NOT EXISTS t_admin_role (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin role';
 
 CREATE TABLE IF NOT EXISTS t_admin_user_role (
-  id varchar(36) NOT NULL,
-  user_id varchar(36) NOT NULL,
-  role_id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  user_id bigint unsigned NOT NULL,
+  role_id bigint unsigned NOT NULL,
   created_at datetime(3) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uk_admin_user_role (user_id, role_id),
@@ -109,8 +111,8 @@ CREATE TABLE IF NOT EXISTS t_admin_user_role (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin user role';
 
 CREATE TABLE IF NOT EXISTS t_admin_menu (
-  id varchar(36) NOT NULL,
-  parent_id varchar(36) NOT NULL DEFAULT '',
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  parent_id bigint unsigned NOT NULL DEFAULT 0,
   title varchar(100) NOT NULL,
   path varchar(255) NOT NULL,
   icon varchar(100) NULL,
@@ -125,7 +127,7 @@ CREATE TABLE IF NOT EXISTS t_admin_menu (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin menu';
 
 CREATE TABLE IF NOT EXISTS t_admin_api_permission (
-  id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
   method varchar(20) NOT NULL,
   path varchar(255) NOT NULL,
   permission_code varchar(100) NOT NULL,
@@ -139,8 +141,8 @@ CREATE TABLE IF NOT EXISTS t_admin_api_permission (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin api permission';
 
 CREATE TABLE IF NOT EXISTS t_admin_role_permission (
-  id varchar(36) NOT NULL,
-  role_id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  role_id bigint unsigned NOT NULL,
   permission_type varchar(20) NOT NULL,
   permission_code varchar(100) NOT NULL,
   created_at datetime(3) NOT NULL,
@@ -150,8 +152,8 @@ CREATE TABLE IF NOT EXISTS t_admin_role_permission (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin role permission';
 
 CREATE TABLE IF NOT EXISTS t_admin_operation_log (
-  id varchar(36) NOT NULL,
-  user_id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  user_id bigint unsigned NOT NULL,
   username varchar(100) NOT NULL,
   action varchar(100) NOT NULL,
   resource varchar(100) NOT NULL,
@@ -165,10 +167,10 @@ CREATE TABLE IF NOT EXISTS t_admin_operation_log (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='admin operation log';
 
 CREATE TABLE IF NOT EXISTS t_manual_decision (
-  id varchar(36) NOT NULL,
-  scan_log_id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  scan_log_id bigint unsigned NOT NULL,
   isbn varchar(20) NOT NULL,
-  admin_user_id varchar(36) NOT NULL,
+  admin_user_id bigint unsigned NOT NULL,
   manual_decision varchar(20) NOT NULL,
   actual_recycle_price decimal(20,2) NULL,
   note varchar(1000) NULL,
@@ -179,7 +181,7 @@ CREATE TABLE IF NOT EXISTS t_manual_decision (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='manual decision';
 
 CREATE TABLE IF NOT EXISTS t_recycle_rule (
-  id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
   version varchar(50) NOT NULL,
   name varchar(100) NOT NULL,
   min_accept_avg_price decimal(20,2) NOT NULL,
@@ -188,7 +190,7 @@ CREATE TABLE IF NOT EXISTS t_recycle_rule (
   price_valid_days int NOT NULL DEFAULT 30,
   low_confidence_mode varchar(20) NOT NULL DEFAULT 'NEED_REVIEW',
   enabled tinyint(1) NOT NULL DEFAULT 0,
-  created_by varchar(36) NULL,
+  created_by bigint unsigned NULL,
   created_at datetime(3) NOT NULL,
   updated_at datetime(3) NOT NULL,
   PRIMARY KEY (id),
@@ -197,14 +199,14 @@ CREATE TABLE IF NOT EXISTS t_recycle_rule (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='recycle rule';
 
 CREATE TABLE IF NOT EXISTS t_import_task (
-  id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
   file_name varchar(255) NOT NULL,
   file_type varchar(20) NOT NULL,
   status varchar(20) NOT NULL,
   total_rows int NOT NULL DEFAULT 0,
   success_rows int NOT NULL DEFAULT 0,
   failed_rows int NOT NULL DEFAULT 0,
-  created_by varchar(36) NOT NULL,
+  created_by bigint unsigned NOT NULL,
   error_message varchar(1000) NULL,
   created_at datetime(3) NOT NULL,
   completed_at datetime(3) NULL,
@@ -214,8 +216,8 @@ CREATE TABLE IF NOT EXISTS t_import_task (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='import task';
 
 CREATE TABLE IF NOT EXISTS t_import_task_row (
-  id varchar(36) NOT NULL,
-  task_id varchar(36) NOT NULL,
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  task_id bigint unsigned NOT NULL,
   row_no int NOT NULL,
   isbn varchar(20) NULL,
   title varchar(255) NULL,

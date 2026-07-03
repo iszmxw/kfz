@@ -1,7 +1,7 @@
 package response
 
 type ScanHistoryItem struct {
-	ScanLogID             string   `json:"scan_log_id"`
+	ScanLogID             uint64   `json:"scan_log_id"`
 	Isbn                  string   `json:"isbn"`
 	Title                 string   `json:"title"`
 	Decision              string   `json:"decision"`
