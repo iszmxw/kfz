@@ -9,12 +9,16 @@ import (
 	"goapi/routes/client"
 	"goapi/routes/web"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 // SetupRoute 路由初始化
 func SetupRoute(router *gin.Engine) *gin.Engine {
 	router.Use(common.TraceLogger()) // 日志追踪
 	router.Use(common.Cors())        // 跨域
+	setupAdminStatic(router)
 	router.NoRoute(NoResponse)
 	router.GET("/route", func(context *gin.Context) {
 		requestId, _ := context.Get("Tracking-Id")
@@ -36,9 +40,37 @@ func SetupRoute(router *gin.Engine) *gin.Engine {
 }
 
 func NoResponse(c *gin.Context) {
+	if serveAdminSPA(c) {
+		return
+	}
 	//返回 404 状态码
 	c.JSON(http.StatusNotFound, gin.H{
 		"status": 404,
 		"error":  "404, page not exists!",
 	})
+}
+
+func setupAdminStatic(router *gin.Engine) {
+	assetsDir := filepath.Join("admin", "dist", "assets")
+	if _, err := os.Stat(assetsDir); err != nil {
+		return
+	}
+	router.Static("/admin/assets", assetsDir)
+}
+
+func serveAdminSPA(c *gin.Context) bool {
+	path := c.Request.URL.Path
+	if path != "/admin" && !strings.HasPrefix(path, "/admin/") {
+		return false
+	}
+	if strings.HasPrefix(path, "/admin/api/") || strings.HasPrefix(path, "/admin/assets/") {
+		return false
+	}
+
+	indexPath := filepath.Join("admin", "dist", "index.html")
+	if _, err := os.Stat(indexPath); err != nil {
+		return false
+	}
+	c.File(indexPath)
+	return true
 }
