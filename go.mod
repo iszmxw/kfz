@@ -20,8 +20,10 @@ require (
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/viper v1.13.0
 	github.com/unrolled/secure v1.13.0
+	github.com/xuri/excelize/v2 v2.10.1
 	github.com/xxjwxc/gormt v0.0.0-20230524090542-40b897dd21c8
 	go.uber.org/zap v1.24.0
+	golang.org/x/crypto v0.52.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.2
@@ -75,13 +77,11 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/xuri/efp v0.0.1 // indirect
-	github.com/xuri/excelize/v2 v2.10.1 // indirect
 	github.com/xuri/nfp v0.0.2-0.20250530014748-2ddeb826f9a9 // indirect
 	github.com/xxjwxc/public v0.0.0-20230522110634-c12fa2a731cf // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.7.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/crypto v0.51.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
