@@ -1,0 +1,11 @@
+.git
+.idea
+.tmp
+.superpowers
+.worktrees
+admin/node_modules
+admin/dist
+miniprogram/node_modules
+miniprogram/miniprogram_npm
+miniprogram/dist
+docker-data
