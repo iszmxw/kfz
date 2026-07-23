@@ -44,6 +44,7 @@ func RegisterAdminRoutes(router *gin.RouterGroup) {
 		importTask := adminRoute.Group("/import")
 		{
 			importTask.POST("/upload", middlewaresV1.AdminAuth("import:write"), group.ImportController.Upload)
+			importTask.POST("/kongfz-category/sync", middlewaresV1.AdminAuth("import:write"), group.ImportController.SyncKongfzCategory)
 			importTask.GET("/list", middlewaresV1.AdminAuth("import:read"), group.ImportController.List)
 			importTask.GET("/detail", middlewaresV1.AdminAuth("import:read"), group.ImportController.Detail)
 		}

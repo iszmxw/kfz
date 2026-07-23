@@ -21,7 +21,7 @@ func setupAdminServiceTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
-	if err := db.AutoMigrate(&models.Book{}, &models.ScanLog{}, &models.ManualDecision{}); err != nil {
+	if err := db.AutoMigrate(&models.Book{}, &models.PriceSnapshot{}, &models.ScanLog{}, &models.ManualDecision{}, &models.ImportTask{}, &models.ImportTaskRow{}); err != nil {
 		t.Fatalf("migrate: %v", err)
 	}
 	original := mysql.DB
