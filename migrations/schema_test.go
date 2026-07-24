@@ -2,10 +2,21 @@ package migrations
 
 import (
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"testing"
 )
+
+func TestMigrationsOnlyKeepFinalLocalSchema(t *testing.T) {
+	files, err := filepath.Glob("*.sql")
+	if err != nil {
+		t.Fatalf("list sql migrations: %v", err)
+	}
+	if len(files) != 1 || files[0] != "001_init.sql" {
+		t.Fatalf("local dev should keep only final schema 001_init.sql, got %v", files)
+	}
+}
 
 func TestInitSchemaUsesAutoIncrementIDs(t *testing.T) {
 	raw, err := os.ReadFile("001_init.sql")
@@ -29,6 +40,8 @@ func TestInitSchemaUsesAutoIncrementIDs(t *testing.T) {
 		"t_recycle_rule",
 		"t_import_task",
 		"t_import_task_row",
+		"t_kongfz_collect_task",
+		"t_kongfz_collect_raw_row",
 	} {
 		pattern := regexp.MustCompile(`(?is)CREATE TABLE IF NOT EXISTS ` + table + ` \(\s*id bigint unsigned NOT NULL AUTO_INCREMENT`)
 		if !pattern.MatchString(sql) {
@@ -40,5 +53,11 @@ func TestInitSchemaUsesAutoIncrementIDs(t *testing.T) {
 	}
 	if !strings.Contains(sql, "UNIQUE KEY uk_book_isbn (isbn)") {
 		t.Fatal("book schema must keep isbn as a unique business key")
+	}
+	if !strings.Contains(sql, "cover_url varchar(1000) NULL") {
+		t.Fatal("schema must include book cover url fields")
+	}
+	if !regexp.MustCompile(`(?is)CREATE TABLE IF NOT EXISTS t_kongfz_collect_raw_row .*cover_url varchar\(1000\) NULL`).MatchString(sql) {
+		t.Fatal("kongfz raw row schema must keep collected cover url")
 	}
 }

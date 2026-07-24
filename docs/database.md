@@ -4,19 +4,52 @@
 
 本文档定义 V1 后端使用的 MySQL 数据库结构、索引、初始化脚本和 mock 数据策略。
 
-V1 只落三张核心表：
+本地开发阶段只维护一个最终建表脚本：`migrations/001_init.sql`。当前最终表清单如下。
+
+业务核心表：
 
 - 逻辑表 `book`
 - 逻辑表 `price_snapshot`
 - 逻辑表 `scan_log`
+- 逻辑表 `manual_decision`
+- 逻辑表 `recycle_rule`
+
+后台与导入辅助表：
+
+- 逻辑表 `admin_user`
+- 逻辑表 `admin_role`
+- 逻辑表 `admin_user_role`
+- 逻辑表 `admin_menu`
+- 逻辑表 `admin_api_permission`
+- 逻辑表 `admin_role_permission`
+- 逻辑表 `admin_operation_log`
+- 逻辑表 `import_task`
+- 逻辑表 `import_task_row`
+- 逻辑表 `kongfz_collect_task`
+- 逻辑表 `kongfz_collect_raw_row`
+
+孔夫子采集先落原始行，再导入 `book` 和 `price_snapshot`。
 
 当前项目通过 `DB_PREFIX` 配置 GORM 表前缀。默认按 `DB_PREFIX=t_` 规划时，实际物理表名为：
 
 - `t_book`
 - `t_price_snapshot`
 - `t_scan_log`
+- `t_manual_decision`
+- `t_recycle_rule`
+- `t_admin_user`
+- `t_admin_role`
+- `t_admin_user_role`
+- `t_admin_menu`
+- `t_admin_api_permission`
+- `t_admin_role_permission`
+- `t_admin_operation_log`
+- `t_import_task`
+- `t_import_task_row`
+- `t_kongfz_collect_task`
+- `t_kongfz_collect_raw_row`
 
-批量扫码、人工确认、门店账号和库存相关表在 `docs/data_model.md` 中已经规划，但不进入 V1 第一轮建表。
+批量扫码、门店账号和库存相关表在 `docs/data_model.md` 中已经规划，但不进入 V1 第一轮建表。
 
 ## 2. MySQL 约定
 
@@ -342,6 +375,8 @@ V1 可采用简单迁移策略：
 5. 生产环境不自动执行 seed。
 
 开发后台 seed 账号为 `admin`，默认密码为 `admin123`。该账号仅用于本地开发和初始化验证，生产环境应改用环境配置或后台用户管理创建正式账号。
+
+当前仍处于本地开发阶段，数据库以 `migrations/001_init.sql` 为唯一最终结构来源。若本地库结构混乱，直接重建本地库后重新执行 `001_init.sql` 和 seed 即可。
 
 后续进入多环境部署时，再引入正式迁移工具，例如：
 

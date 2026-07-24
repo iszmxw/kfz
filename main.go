@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+	adminSvc "goapi/app/services/admin"
 	"goapi/bootstrap"
 	"goapi/config"
 	conf "goapi/pkg/config"
@@ -39,6 +40,8 @@ func main() {
 	db := conf.GetInt("redis.db")
 	bootstrap.SetupRedis(db)
 	defer bootstrap.RedisClose()
+	adminSvc.StartKongfzCollectWorker()
+	defer adminSvc.StopKongfzCollectWorker()
 	// 初始化路由绑定
 	logger.Info("加载 client 路由")
 	gin.SetMode(gin.ReleaseMode)

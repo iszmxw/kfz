@@ -229,3 +229,54 @@ CREATE TABLE IF NOT EXISTS t_import_task_row (
   KEY idx_import_task_row_task_row_no (task_id, row_no),
   KEY idx_import_task_row_valid (task_id, valid)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='import task row';
+
+CREATE TABLE IF NOT EXISTS t_kongfz_collect_task (
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  cat_id int NOT NULL,
+  start_page int NOT NULL DEFAULT 1,
+  end_page int NOT NULL DEFAULT 0,
+  delay_ms int NOT NULL DEFAULT 1200,
+  retry_times int NOT NULL DEFAULT 2,
+  status varchar(20) NOT NULL DEFAULT 'PENDING',
+  current_page int NOT NULL DEFAULT 0,
+  total_pages int NOT NULL DEFAULT 0,
+  collected_count int NOT NULL DEFAULT 0,
+  valid_count int NOT NULL DEFAULT 0,
+  invalid_count int NOT NULL DEFAULT 0,
+  imported_count int NOT NULL DEFAULT 0,
+  error_message varchar(1000) NULL,
+  request_headers json NULL,
+  created_by bigint unsigned NOT NULL,
+  created_at datetime(3) NOT NULL,
+  updated_at datetime(3) NOT NULL,
+  started_at datetime(3) NULL,
+  completed_at datetime(3) NULL,
+  PRIMARY KEY (id),
+  KEY idx_kongfz_collect_task_status_created_at (status, created_at),
+  KEY idx_kongfz_collect_task_cat_created_at (cat_id, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='kongfz category collect task';
+
+CREATE TABLE IF NOT EXISTS t_kongfz_collect_raw_row (
+  id bigint unsigned NOT NULL AUTO_INCREMENT,
+  task_id bigint unsigned NOT NULL,
+  cat_id int NOT NULL,
+  page int NOT NULL,
+  row_index int NOT NULL,
+  isbn varchar(20) NULL,
+  normalized_isbn varchar(20) NULL,
+  title varchar(255) NULL,
+  cover_url varchar(1000) NULL,
+  valid tinyint(1) NOT NULL DEFAULT 0,
+  error_message varchar(1000) NULL,
+  raw_hash varchar(64) NOT NULL,
+  raw_payload json NOT NULL,
+  import_task_row_id bigint unsigned NULL,
+  sync_status varchar(20) NOT NULL DEFAULT 'PENDING',
+  created_at datetime(3) NOT NULL,
+  updated_at datetime(3) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_kongfz_collect_raw_row_task_page_index (task_id, page, row_index),
+  KEY idx_kongfz_collect_raw_row_cat_isbn (cat_id, normalized_isbn),
+  KEY idx_kongfz_collect_raw_row_task_status (task_id, sync_status),
+  KEY idx_kongfz_collect_raw_row_raw_hash (raw_hash)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='kongfz collected raw row';

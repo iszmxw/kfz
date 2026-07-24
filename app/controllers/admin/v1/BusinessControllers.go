@@ -180,7 +180,7 @@ func (h *BookController) Save(c *gin.Context) {
 
 func (h *PriceSnapshotController) List(c *gin.Context) {
 	page, pageSize := pageParams(c)
-	query := mysql.DB.Model(&models.PriceSnapshot{})
+	query := mysql.DB.Model(&models.PriceSnapshot{}).Select("isbn, source, min_price, avg_price, max_price, sample_count, confidence, raw_url, raw_payload_ref, collected_at, expires_at, created_at")
 	if isbn := strings.TrimSpace(c.Query("isbn")); isbn != "" {
 		query = query.Where("isbn = ?", normalizeISBNForAdmin(isbn))
 	}

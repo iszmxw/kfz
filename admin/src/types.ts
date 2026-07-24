@@ -86,3 +86,53 @@ export interface PriceSnapshot {
   confidence: string;
   collectedAt?: string;
 }
+
+export interface KongfzCollectTask {
+  id: number;
+  catId?: number;
+  cat_id?: number;
+  startPage?: number;
+  start_page?: number;
+  endPage?: number;
+  end_page?: number;
+  delayMs?: number;
+  delay_ms?: number;
+  retryTimes?: number;
+  retry_times?: number;
+  status: string;
+  currentPage?: number;
+  current_page?: number;
+  totalPages?: number;
+  total_pages?: number;
+  collectedCount?: number;
+  collected_count?: number;
+  validCount?: number;
+  valid_count?: number;
+  invalidCount?: number;
+  invalid_count?: number;
+  importedCount?: number;
+  imported_count?: number;
+  errorMessage?: string;
+  error_message?: string;
+  createdAt?: string;
+  created_at?: string;
+}
+
+export interface KongfzCollectRawRow {
+  id: number;
+  page: number;
+  rowIndex?: number;
+  row_index?: number;
+  normalizedIsbn?: string;
+  normalized_isbn?: string;
+  title: string;
+  coverUrl?: string;
+  cover_url?: string;
+  valid: boolean;
+  errorMessage?: string;
+  error_message?: string;
+  syncStatus?: string;
+  sync_status?: string;
+  importTaskRowId?: number;
+  import_task_row_id?: number;
+}

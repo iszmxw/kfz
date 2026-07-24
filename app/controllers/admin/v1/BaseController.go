@@ -11,6 +11,7 @@ type Group struct {
 	BookController
 	PriceSnapshotController
 	ImportController
+	KongfzCollectController
 	RecycleRuleController
 	SystemController
 }

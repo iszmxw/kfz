@@ -11,6 +11,7 @@ import (
 	"goapi/app/models"
 	"goapi/pkg/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const KongfzCategorySource = "kongfz_category"
@@ -87,6 +88,10 @@ type normalizedKongfzItem struct {
 }
 
 func SyncKongfzCategory(input KongfzCategorySyncInput) (KongfzCategorySyncResult, error) {
+	return SyncKongfzCategoryWithDB(mysql.DB, input)
+}
+
+func SyncKongfzCategoryWithDB(db *gorm.DB, input KongfzCategorySyncInput) (KongfzCategorySyncResult, error) {
 	if input.CatID <= 0 {
 		return KongfzCategorySyncResult{}, errors.New("cat_id无效")
 	}
@@ -111,7 +116,7 @@ func SyncKongfzCategory(input KongfzCategorySyncInput) (KongfzCategorySyncResult
 		}
 	}
 
-	err := mysql.DB.Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		task := models.ImportTask{
 			FileName:    fmt.Sprintf("kongfz_category_cat_%d_%s.json", input.CatID, now.Format("20060102150405")),
 			FileType:    "json",
@@ -248,7 +253,7 @@ func normalizeKongfzItems(input KongfzCategorySyncInput) []normalizedKongfzItem 
 
 func upsertKongfzBook(tx *gorm.DB, item normalizedKongfzItem, source string, now time.Time) (bool, bool, error) {
 	var existing models.Book
-	find := tx.Where(models.BookColumns.Isbn+" = ?", item.Isbn).First(&existing)
+	find := tx.Where(models.BookColumns.Isbn+" = ?", item.Isbn).Take(&existing)
 	if errors.Is(find.Error, gorm.ErrRecordNotFound) || find.RowsAffected == 0 {
 		book := models.Book{
 			Isbn:        item.Isbn,
@@ -261,7 +266,17 @@ func upsertKongfzBook(tx *gorm.DB, item normalizedKongfzItem, source string, now
 			CreatedAt:   now,
 			UpdatedAt:   now,
 		}
-		return true, false, tx.Create(&book).Error
+		err := tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: models.BookColumns.Isbn}},
+			DoNothing: true,
+		}).Create(&book).Error
+		if err != nil {
+			return false, false, err
+		}
+		if book.ID != 0 {
+			return true, false, nil
+		}
+		find = tx.Where(models.BookColumns.Isbn+" = ?", item.Isbn).Take(&existing)
 	}
 	if find.Error != nil {
 		return false, false, find.Error
