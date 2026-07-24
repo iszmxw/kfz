@@ -46,6 +46,40 @@ body {
   margin-bottom: 16px;
 }
 
+.book-cover {
+  display: block;
+  object-fit: cover;
+  background: #f2f3f5;
+  border: 1px solid #e5e8ef;
+  border-radius: 4px;
+}
+
+.book-cover-table {
+  width: 42px;
+  height: 58px;
+}
+
+.book-cover-preview {
+  width: 96px;
+  height: 132px;
+}
+
+.book-cover-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #86909c;
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.book-form-cover {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
 .login-page {
   min-height: 100vh;
   display: flex;

@@ -21,8 +21,16 @@ func setupAdminServiceTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("open sqlite: %v", err)
 	}
-	if err := db.AutoMigrate(&models.Book{}, &models.ScanLog{}, &models.ManualDecision{}); err != nil {
+	if err := db.AutoMigrate(&models.Book{}, &models.PriceSnapshot{}, &models.ScanLog{}, &models.ManualDecision{}, &models.ImportTask{}, &models.ImportTaskRow{}, &models.KongfzCollectTask{}, &models.KongfzCollectRawRow{}); err != nil {
 		t.Fatalf("migrate: %v", err)
+	}
+	for _, statement := range []string{
+		"CREATE UNIQUE INDEX IF NOT EXISTS uk_book_isbn ON book (isbn)",
+		"CREATE UNIQUE INDEX IF NOT EXISTS uk_kongfz_collect_raw_row_task_page_index ON kongfz_collect_raw_row (task_id, page, row_index)",
+	} {
+		if err := db.Exec(statement).Error; err != nil {
+			t.Fatalf("create test index: %v", err)
+		}
 	}
 	original := mysql.DB
 	mysql.DB = db

@@ -1,3 +1,14 @@
+import { initAudioFeedback, setAudioFeedbackForeground } from "./utils/feedback";
+
 App<IAppOption>({
-  globalData: {}
+  globalData: {},
+  onLaunch() {
+    initAudioFeedback();
+  },
+  onShow() {
+    setAudioFeedbackForeground(true);
+  },
+  onHide() {
+    setAudioFeedbackForeground(false);
+  }
 });

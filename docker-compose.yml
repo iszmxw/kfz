@@ -1,0 +1,24 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kfz-app:local
+    container_name: kfz-app
+    environment:
+      DEV: "1"
+      TLS: "false"
+      TZ: Asia/Shanghai
+    working_dir: /config
+    command: ["/app/kfz"]
+    volumes:
+      - ${CONFIG_DIR:-.}:/config:ro
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8888/app/v1/demo/ping.json || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 20s
+    restart: unless-stopped

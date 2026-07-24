@@ -174,3 +174,54 @@ type ImportTaskRow struct {
 func (m *ImportTaskRow) TableName() string {
 	return tableName("import_task_row")
 }
+
+type KongfzCollectTask struct {
+	ID             uint64     `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
+	CatID          int        `gorm:"column:cat_id" json:"catId"`
+	StartPage      int        `gorm:"column:start_page" json:"startPage"`
+	EndPage        int        `gorm:"column:end_page" json:"endPage"`
+	DelayMS        int        `gorm:"column:delay_ms" json:"delayMs"`
+	RetryTimes     int        `gorm:"column:retry_times" json:"retryTimes"`
+	Status         string     `gorm:"column:status" json:"status"`
+	CurrentPage    int        `gorm:"column:current_page" json:"currentPage"`
+	TotalPages     int        `gorm:"column:total_pages" json:"totalPages"`
+	CollectedCount int        `gorm:"column:collected_count" json:"collectedCount"`
+	ValidCount     int        `gorm:"column:valid_count" json:"validCount"`
+	InvalidCount   int        `gorm:"column:invalid_count" json:"invalidCount"`
+	ImportedCount  int        `gorm:"column:imported_count" json:"importedCount"`
+	ErrorMessage   string     `gorm:"column:error_message" json:"errorMessage"`
+	RequestHeaders string     `gorm:"column:request_headers" json:"-"`
+	CreatedBy      uint64     `gorm:"column:created_by" json:"createdBy"`
+	CreatedAt      time.Time  `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt      time.Time  `gorm:"column:updated_at" json:"updatedAt"`
+	StartedAt      *time.Time `gorm:"column:started_at" json:"startedAt"`
+	CompletedAt    *time.Time `gorm:"column:completed_at" json:"completedAt"`
+}
+
+func (m *KongfzCollectTask) TableName() string {
+	return tableName("kongfz_collect_task")
+}
+
+type KongfzCollectRawRow struct {
+	ID              uint64    `gorm:"primaryKey;autoIncrement;column:id" json:"id"`
+	TaskID          uint64    `gorm:"column:task_id" json:"taskId"`
+	CatID           int       `gorm:"column:cat_id" json:"catId"`
+	Page            int       `gorm:"column:page" json:"page"`
+	RowIndex        int       `gorm:"column:row_index" json:"rowIndex"`
+	Isbn            string    `gorm:"column:isbn" json:"isbn"`
+	NormalizedIsbn  string    `gorm:"column:normalized_isbn" json:"normalizedIsbn"`
+	Title           string    `gorm:"column:title" json:"title"`
+	CoverURL        string    `gorm:"column:cover_url" json:"coverUrl"`
+	Valid           bool      `gorm:"column:valid" json:"valid"`
+	ErrorMessage    string    `gorm:"column:error_message" json:"errorMessage"`
+	RawHash         string    `gorm:"column:raw_hash" json:"rawHash"`
+	RawPayload      string    `gorm:"column:raw_payload" json:"rawPayload"`
+	ImportTaskRowID uint64    `gorm:"column:import_task_row_id" json:"importTaskRowId"`
+	SyncStatus      string    `gorm:"column:sync_status" json:"syncStatus"`
+	CreatedAt       time.Time `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt       time.Time `gorm:"column:updated_at" json:"updatedAt"`
+}
+
+func (m *KongfzCollectRawRow) TableName() string {
+	return tableName("kongfz_collect_raw_row")
+}

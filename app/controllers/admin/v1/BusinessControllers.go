@@ -6,6 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -26,6 +27,34 @@ type BookController struct{ BaseController }
 type PriceSnapshotController struct{ BaseController }
 type ImportController struct{ BaseController }
 type RecycleRuleController struct{ BaseController }
+
+type kongfzCategorySyncRequest struct {
+	CatID  int                             `json:"cat_id"`
+	Source string                          `json:"source"`
+	Items  []kongfzCategorySyncItemRequest `json:"items"`
+}
+
+type kongfzCategorySyncItemRequest struct {
+	Isbn                string          `json:"isbn"`
+	Title               string          `json:"title"`
+	BookName            string          `json:"book_name"`
+	Author              string          `json:"author"`
+	Publisher           string          `json:"publisher"`
+	PublishYear         string          `json:"publish_year"`
+	PublishDate         string          `json:"publish_date"`
+	Binding             string          `json:"binding"`
+	ListPrice           string          `json:"list_price"`
+	CoverURL            string          `json:"cover_url"`
+	RawURL              string          `json:"raw_url"`
+	Page                int             `json:"page"`
+	Mid                 uint64          `json:"mid"`
+	KongfzID            uint64          `json:"kongfz_id"`
+	OldBookMinPrice     interface{}     `json:"old_book_min_price"`
+	OldBookMinPriceText string          `json:"old_book_min_price_text"`
+	OldBookOnSaleNum    int             `json:"old_book_on_sale_num"`
+	BookShowInfo        []string        `json:"book_show_info"`
+	RawPayload          json.RawMessage `json:"raw_payload"`
+}
 
 func (h *ManualReviewController) List(c *gin.Context) {
 	page, pageSize := pageParams(c)
@@ -151,7 +180,7 @@ func (h *BookController) Save(c *gin.Context) {
 
 func (h *PriceSnapshotController) List(c *gin.Context) {
 	page, pageSize := pageParams(c)
-	query := mysql.DB.Model(&models.PriceSnapshot{})
+	query := mysql.DB.Model(&models.PriceSnapshot{}).Select("isbn, source, min_price, avg_price, max_price, sample_count, confidence, raw_url, raw_payload_ref, collected_at, expires_at, created_at")
 	if isbn := strings.TrimSpace(c.Query("isbn")); isbn != "" {
 		query = query.Where("isbn = ?", normalizeISBNForAdmin(isbn))
 	}
@@ -363,6 +392,58 @@ func (h *ImportController) Upload(c *gin.Context) {
 	echo.Success(c, gin.H{"task": task, "parse_result": result}, "")
 }
 
+func (h *ImportController) SyncKongfzCategory(c *gin.Context) {
+	var req kongfzCategorySyncRequest
+	if err := bindJSON(c, &req); err != nil {
+		echo.Error(c, "Failed", "请求参数错误")
+		return
+	}
+	source := strings.TrimSpace(req.Source)
+	if source == "" {
+		source = adminSvc.KongfzCategorySource
+	}
+	input := adminSvc.KongfzCategorySyncInput{
+		CatID:     req.CatID,
+		Source:    source,
+		CreatedBy: currentSession(c).UserID,
+		Items:     make([]adminSvc.KongfzCategoryItemInput, 0, len(req.Items)),
+	}
+	for index, item := range req.Items {
+		rawPayload := ""
+		if len(item.RawPayload) > 0 {
+			rawPayload = string(item.RawPayload)
+		}
+		input.Items = append(input.Items, adminSvc.KongfzCategoryItemInput{
+			RowNumber:        index + 1,
+			Page:             item.Page,
+			Isbn:             item.Isbn,
+			Title:            item.Title,
+			BookName:         item.BookName,
+			Author:           item.Author,
+			Publisher:        item.Publisher,
+			PublishYear:      item.PublishYear,
+			PublishDate:      item.PublishDate,
+			Binding:          item.Binding,
+			ListPrice:        item.ListPrice,
+			CoverURL:         item.CoverURL,
+			RawURL:           item.RawURL,
+			KongfzID:         item.KongfzID,
+			Mid:              item.Mid,
+			OldBookMinPrice:  kongfzDecimalFromRequest(item.OldBookMinPrice, item.OldBookMinPriceText),
+			OldBookOnSaleNum: item.OldBookOnSaleNum,
+			BookShowInfo:     item.BookShowInfo,
+			RawPayload:       rawPayload,
+		})
+	}
+	result, err := adminSvc.SyncKongfzCategory(input)
+	if err != nil {
+		echo.Error(c, "Failed", err.Error())
+		return
+	}
+	recordOperation(c, "import.kongfz_category.sync", "import_task", "SUCCESS", result.Task.ID)
+	echo.Success(c, result, "")
+}
+
 func (h *ImportController) List(c *gin.Context) {
 	page, pageSize := pageParams(c)
 	writePage(c, mysql.DB.Model(&models.ImportTask{}).Order("created_at DESC"), page, pageSize, &[]models.ImportTask{})
@@ -415,6 +496,30 @@ func optionalDecimal(value string) (*decimal.Decimal, error) {
 		return nil, err
 	}
 	return &amount, nil
+}
+
+func kongfzDecimalFromRequest(value interface{}, text string) *decimal.Decimal {
+	candidates := make([]string, 0, 2)
+	switch typed := value.(type) {
+	case float64:
+		candidates = append(candidates, strconv.FormatFloat(typed, 'f', -1, 64))
+	case string:
+		candidates = append(candidates, typed)
+	}
+	if strings.TrimSpace(text) != "" {
+		candidates = append(candidates, text)
+	}
+	for _, candidate := range candidates {
+		candidate = strings.TrimSpace(candidate)
+		if candidate == "" {
+			continue
+		}
+		amount, err := decimal.NewFromString(candidate)
+		if err == nil {
+			return &amount
+		}
+	}
+	return nil
 }
 
 func parseImportFile(file *multipart.FileHeader) (adminSvc.ImportParseResult, error) {

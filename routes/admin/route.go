@@ -44,8 +44,18 @@ func RegisterAdminRoutes(router *gin.RouterGroup) {
 		importTask := adminRoute.Group("/import")
 		{
 			importTask.POST("/upload", middlewaresV1.AdminAuth("import:write"), group.ImportController.Upload)
+			importTask.POST("/kongfz-category/sync", middlewaresV1.AdminAuth("import:write"), group.ImportController.SyncKongfzCategory)
 			importTask.GET("/list", middlewaresV1.AdminAuth("import:read"), group.ImportController.List)
 			importTask.GET("/detail", middlewaresV1.AdminAuth("import:read"), group.ImportController.Detail)
+		}
+
+		kongfzCollect := adminRoute.Group("/kongfz-collect")
+		{
+			kongfzCollect.POST("/task/create", middlewaresV1.AdminAuth("import:write"), group.KongfzCollectController.Create)
+			kongfzCollect.GET("/task/list", middlewaresV1.AdminAuth("import:read"), group.KongfzCollectController.List)
+			kongfzCollect.GET("/task/detail", middlewaresV1.AdminAuth("import:read"), group.KongfzCollectController.Detail)
+			kongfzCollect.POST("/task/stop", middlewaresV1.AdminAuth("import:write"), group.KongfzCollectController.Stop)
+			kongfzCollect.POST("/task/retry", middlewaresV1.AdminAuth("import:write"), group.KongfzCollectController.Retry)
 		}
 
 		rule := adminRoute.Group("/recycle-rule")

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
+	adminSvc "goapi/app/services/admin"
 	"goapi/bootstrap"
 	"goapi/config"
 	conf "goapi/pkg/config"
@@ -30,6 +31,7 @@ func init() {
 	// 初始化 Redis
 	logger.Info("初始化 Redis")
 	bootstrap.SetupRedis(conf.GetInt("redis.db"))
+	adminSvc.StartKongfzCollectWorker()
 	app = gin.New()
 	bootstrap.SetupTemplate(app)
 	// Handling routing errors
