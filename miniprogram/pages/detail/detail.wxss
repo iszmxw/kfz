@@ -27,6 +27,13 @@
   white-space: pre-line;
 }
 
+.cover-image {
+  width: 84px;
+  height: 116px;
+  border-radius: 8px;
+  background: #eef2f5;
+}
+
 .cover.reject {
   background: linear-gradient(145deg, #655b5b, #b93d3d);
 }

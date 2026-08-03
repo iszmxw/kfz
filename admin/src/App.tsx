@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useMemo, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { Layout, Menu, Button, Typography, Dropdown, Avatar, Space, Message } from '@arco-design/web-react';
 import {
   IconBook,

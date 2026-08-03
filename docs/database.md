@@ -139,7 +139,7 @@ migrations/001_init.sql
 CREATE TABLE IF NOT EXISTS t_book (
   id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   isbn varchar(20) NOT NULL COMMENT '归一化后的 ISBN',
-  title varchar(255) NOT NULL COMMENT '书名',
+  title text NOT NULL COMMENT '书名',
   author varchar(255) NULL COMMENT '作者',
   publisher varchar(255) NULL COMMENT '出版社',
   publish_year varchar(20) NULL COMMENT '出版年份',
@@ -149,7 +149,7 @@ CREATE TABLE IF NOT EXISTS t_book (
   updated_at datetime(3) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uk_book_isbn (isbn),
-  KEY idx_book_title (title)
+  KEY idx_book_title (title(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='书籍基础信息';
 ```
 
@@ -158,7 +158,7 @@ CREATE TABLE IF NOT EXISTS t_book (
 - `id` 是数据库自增主键，便于后台管理和表关联。
 - `isbn` 表示书籍品种，不表示具体一本实体书，并通过唯一索引保证不重复。
 - 同 ISBN 重复扫码时复用此表记录。
-- `title` 建索引用于后续后台搜索，V1 接口可以暂不使用。
+- `title` 使用 `text` 保存完整外部书名；索引使用 `title(191)` 前缀索引用于后续后台搜索，V1 接口可以暂不使用。
 - `t_` 是当前默认 `DB_PREFIX`；如果环境使用其他前缀，物理表名随之调整。
 
 ### 4.2 price_snapshot
@@ -281,8 +281,8 @@ INSERT INTO t_price_snapshot (
 | ISBN | 场景 | 预期结果 |
 | --- | --- | --- |
 | `9787111128069` | 均价 24.50 元，样本 8 | `ACCEPT` |
-| `9787115428028` | 均价 8.00 元，样本 6 | `REJECT` |
-| `9787300000001` | 均价 30.00 元，样本 1 | `NEED_REVIEW` |
+| `9787115428028` | 均价 8.00 元，样本 6 | `ACCEPT` |
+| `9787300000001` | 均价 30.00 元，样本 1 | `ACCEPT` |
 | 未录入 ISBN | 无书籍数据 | `REJECT` |
 
 ## 6. 查询 SQL 参考

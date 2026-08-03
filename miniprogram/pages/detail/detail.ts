@@ -48,7 +48,7 @@ Page<DetailData, WechatMiniprogram.Page.CustomOption>({
     marketSampleText: "0 条",
     marketSourceText: "-",
     confidenceText: "NONE",
-    confidenceDesc: "暂无有效价格数据",
+    confidenceDesc: "暂无价格数据，已按书籍存在默认建议回收",
     suggestedPriceText: "-"
   },
 
@@ -85,7 +85,7 @@ Page<DetailData, WechatMiniprogram.Page.CustomOption>({
       decisionTone: tone,
       decisionText: decisionLabel(decision),
       decisionTagColor: decisionColor[tone],
-      coverText: decision === "ACCEPT" ? "可回收\n样书" : decision === "REJECT" ? "低价\n样书" : "待确认\n样书",
+      coverText: decision === "ACCEPT" ? "可回收\n样书" : decision === "REJECT" ? "未录入\n图书" : "待确认\n样书",
       bookTitleText: detail.book.title || "未知图书",
       bookAuthorText: detail.book.author || "未知作者",
       bookPublishText: `${detail.book.publisher || "未知出版社"} · ${detail.book.publish_year || "年份缺失"}`,
@@ -95,7 +95,7 @@ Page<DetailData, WechatMiniprogram.Page.CustomOption>({
       marketSampleText: `${price?.sample_count || 0} 条`,
       marketSourceText: price ? `${price.source} · ${formatDateTime(price.collected_at)}` : "-",
       confidenceText: confidence,
-      confidenceDesc: confidence === "HIGH" ? "样本充足，价格稳定" : "样本少、价格异常或数据偏旧",
+      confidenceDesc: price ? "价格数据仅用于建议价参考" : "暂无价格数据，已按书籍存在默认建议回收",
       suggestedPriceText: formatNullableMoney(detail.latest_decision.suggested_recycle_price)
     });
   },

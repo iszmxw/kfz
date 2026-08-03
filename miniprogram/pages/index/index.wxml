@@ -36,7 +36,13 @@
       </view>
 
       <view class="book-row">
-        <view class="cover {{ decisionTone }}">
+        <image
+          wx:if="{{ currentResult.book.cover_url }}"
+          class="cover-image"
+          src="{{ currentResult.book.cover_url }}"
+          mode="aspectFill"
+        />
+        <view wx:else class="cover {{ decisionTone }}">
           <text>{{ coverText }}</text>
         </view>
         <view class="book-info">
@@ -90,7 +96,7 @@
       <view class="scan-icon">ISBN</view>
     </van-button>
     <text class="scan-title">{{ currentResult || showRecentOnly ? "继续扫码" : scanButtonText }}</text>
-    <text class="scan-subtitle">{{ currentResult || showRecentOnly ? "新图书可继续扫码，当前结果已展示在上方。" : "对准 ISBN 条形码，系统返回收、不收或需确认。" }}</text>
+    <text class="scan-subtitle">{{ currentResult || showRecentOnly ? "新图书可继续扫码，当前结果已展示在上方。" : "对准 ISBN 条形码，录入库内图书默认建议回收。" }}</text>
     <view wx:if="{{ checking }}" class="weak-tip">弱网时可能需要多等几秒，请勿重复点击扫码按钮。</view>
   </view>
 

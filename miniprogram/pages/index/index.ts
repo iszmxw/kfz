@@ -177,11 +177,11 @@ Page<IndexData, WechatMiniprogram.Page.CustomOption>({
     this.setData({
       decisionTone: tone,
       decisionLabel: decisionLabel(result.decision),
-      decisionTitle: result.decision === "ACCEPT" ? "建议回收" : result.decision === "REJECT" ? "不建议回收" : "样本不足，人工判断",
+      decisionTitle: result.decision === "ACCEPT" ? "建议回收" : result.decision === "REJECT" ? "未录入，不建议回收" : "需要人工确认",
       suggestedPriceText: formatNullableMoney(result.suggested_recycle_price),
       showSuggestedPrice: result.suggested_recycle_price !== null,
       showManualActions: result.decision === "NEED_REVIEW",
-      coverText: result.decision === "ACCEPT" ? "可回收\n样书" : result.decision === "REJECT" ? "低价\n样书" : "待确认\n样书",
+      coverText: result.decision === "ACCEPT" ? "可回收\n样书" : result.decision === "REJECT" ? "未录入\n图书" : "待确认\n样书",
       bookTitleText: result.book.title || "未知图书",
       bookPublishText: `${result.book.publisher || "未知出版社"} · ${result.book.publish_year || "年份缺失"}`,
       marketMinText: formatNullableMoney(price?.min),

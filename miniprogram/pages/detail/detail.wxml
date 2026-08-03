@@ -3,7 +3,13 @@
 
   <view wx:elif="{{ detail }}" class="detail-content">
     <view class="book-card card">
-      <view class="cover {{ decisionTone }}">
+      <image
+        wx:if="{{ detail.book.cover_url }}"
+        class="cover-image"
+        src="{{ detail.book.cover_url }}"
+        mode="aspectFill"
+      />
+      <view wx:else class="cover {{ decisionTone }}">
         <text>{{ coverText }}</text>
       </view>
       <view class="book-main">

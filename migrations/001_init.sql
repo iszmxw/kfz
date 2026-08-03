@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS t_book (
   id bigint unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
   isbn varchar(20) NOT NULL COMMENT 'normalized ISBN',
-  title varchar(255) NOT NULL COMMENT 'book title',
+  title text NOT NULL COMMENT 'book title',
   author varchar(255) NULL COMMENT 'author',
   publisher varchar(255) NULL COMMENT 'publisher',
   publish_year varchar(20) NULL COMMENT 'publish year',
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS t_book (
   updated_at datetime(3) NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY uk_book_isbn (isbn),
-  KEY idx_book_title (title)
+  KEY idx_book_title (title(191))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='book base information';
 
 CREATE TABLE IF NOT EXISTS t_price_snapshot (
@@ -220,7 +220,7 @@ CREATE TABLE IF NOT EXISTS t_import_task_row (
   task_id bigint unsigned NOT NULL,
   row_no int NOT NULL,
   isbn varchar(20) NULL,
-  title varchar(255) NULL,
+  title text NULL,
   valid tinyint(1) NOT NULL DEFAULT 0,
   error_message varchar(1000) NULL,
   raw_payload json NULL,
@@ -264,7 +264,7 @@ CREATE TABLE IF NOT EXISTS t_kongfz_collect_raw_row (
   row_index int NOT NULL,
   isbn varchar(20) NULL,
   normalized_isbn varchar(20) NULL,
-  title varchar(255) NULL,
+  title text NULL,
   cover_url varchar(1000) NULL,
   valid tinyint(1) NOT NULL DEFAULT 0,
   error_message varchar(1000) NULL,

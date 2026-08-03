@@ -33,7 +33,7 @@ func TestDecideUsesEnabledRuleValues(t *testing.T) {
 	}
 }
 
-func TestDecideNeedsReviewForLowSampleByRule(t *testing.T) {
+func TestDecideAcceptsExistingBookWithLowSampleByDefault(t *testing.T) {
 	rule := Rule{
 		MinAcceptAvgPrice: decimal.RequireFromString("10.00"),
 		RecycleRate:       decimal.RequireFromString("0.30"),
@@ -45,8 +45,26 @@ func TestDecideNeedsReviewForLowSampleByRule(t *testing.T) {
 		rule,
 	)
 
-	if result.Decision != DecisionNeedReview {
-		t.Fatalf("decision = %s, want %s", result.Decision, DecisionNeedReview)
+	if result.Decision != DecisionAccept {
+		t.Fatalf("decision = %s, want %s", result.Decision, DecisionAccept)
+	}
+	if result.SuggestedRecyclePrice == nil || !result.SuggestedRecyclePrice.Equal(decimal.RequireFromString("15.00")) {
+		t.Fatalf("suggested = %v, want 15.00", result.SuggestedRecyclePrice)
+	}
+}
+
+func TestDecideAcceptsExistingBookWithoutPrice(t *testing.T) {
+	result := Decide(
+		BookInput{Exists: true, Source: "manual"},
+		PriceInput{},
+		DefaultRule(),
+	)
+
+	if result.Decision != DecisionAccept {
+		t.Fatalf("decision = %s, want %s", result.Decision, DecisionAccept)
+	}
+	if result.SuggestedRecyclePrice != nil {
+		t.Fatalf("suggested = %v, want nil", result.SuggestedRecyclePrice)
 	}
 }
 

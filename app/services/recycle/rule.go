@@ -56,19 +56,13 @@ func Decide(book BookInput, price PriceInput, rule Rule) DecisionResult {
 		return DecisionResult{Decision: DecisionReject, Reason: "未找到书籍基础信息"}
 	}
 	if !price.HasPrice || price.AvgPrice == nil || price.SampleCount <= 0 {
-		return DecisionResult{Decision: DecisionNeedReview, Reason: "暂无有效价格数据，需要人工确认"}
-	}
-	if price.SampleCount < rule.MinSampleCount || price.Confidence == "LOW" || price.Confidence == ConfidenceNone {
-		return DecisionResult{Decision: DecisionNeedReview, Reason: "价格样本不足或可信度偏低，需要人工确认"}
-	}
-	if price.AvgPrice.LessThan(rule.MinAcceptAvgPrice) {
-		return DecisionResult{Decision: DecisionReject, Reason: "二手市场均价低于回收规则"}
+		return DecisionResult{Decision: DecisionAccept, Reason: "书籍存在，默认建议回收"}
 	}
 
 	suggested := price.AvgPrice.Mul(rule.RecycleRate).Round(2)
 	return DecisionResult{
 		Decision:              DecisionAccept,
-		Reason:                "二手市场均价满足回收规则",
+		Reason:                "书籍存在，默认建议回收",
 		SuggestedRecyclePrice: &suggested,
 	}
 }

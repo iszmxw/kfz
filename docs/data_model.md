@@ -125,7 +125,7 @@ erDiagram
 | --- | --- | --- | --- |
 | id | bigint unsigned | 是 | 自增主键 |
 | isbn | varchar(20) | 是 | ISBN，唯一业务键，建议存归一化后的 10 位或 13 位 |
-| title | varchar(255) | 是 | 书名 |
+| title | text | 是 | 书名 |
 | author | varchar(255) | 否 | 作者 |
 | publisher | varchar(255) | 否 | 出版社 |
 | publish_year | varchar(20) | 否 | 出版年份 |
@@ -235,7 +235,7 @@ erDiagram
 | id | bigint unsigned | 是 | 自增主键 |
 | batch_id | bigint unsigned | 是 | 关联 `scan_batch.id` |
 | isbn | varchar(20) | 是 | 关联 `book.isbn` |
-| title | varchar(255) | 否 | 冗余书名，便于列表展示 |
+| title | text | 否 | 冗余书名，便于列表展示 |
 | quantity | int | 是 | 本批次同 ISBN 数量 |
 | decision | varchar(20) | 是 | 当前聚合判断结果 |
 | reason | varchar(500) | 是 | 判断原因 |
@@ -468,5 +468,5 @@ table_names: "t_book,t_price_snapshot,t_scan_log"
 已确定规则：
 
 - V1 数据库使用 MySQL 8.4。
-- 无价格数据时默认 `NEED_REVIEW`。
+- 只要存在书籍基础数据，V1 默认 `ACCEPT`；没有价格数据时不返回建议回收价。
 - `client_request_id` 由小程序生成，后端作为可选幂等键处理。

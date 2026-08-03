@@ -91,35 +91,35 @@ func TestDecideRecycle(t *testing.T) {
 		}
 	})
 
-	t.Run("needs review without valid price", func(t *testing.T) {
+	t.Run("accepts existing book without valid price", func(t *testing.T) {
 		decision, _, suggested := decideRecycle(book, true, false, models.PriceSnapshot{})
-		if decision != decisionNeedReview {
-			t.Fatalf("decision = %s, want %s", decision, decisionNeedReview)
+		if decision != decisionAccept {
+			t.Fatalf("decision = %s, want %s", decision, decisionAccept)
 		}
 		if suggested != nil {
 			t.Fatalf("suggested price = %v, want nil", suggested)
 		}
 	})
 
-	t.Run("needs review for low sample count", func(t *testing.T) {
+	t.Run("accepts existing book with low sample count", func(t *testing.T) {
 		price := models.PriceSnapshot{AvgPrice: decimalPtr("30.00"), SampleCount: 1, Confidence: "LOW"}
 		decision, _, suggested := decideRecycle(book, true, true, price)
-		if decision != decisionNeedReview {
-			t.Fatalf("decision = %s, want %s", decision, decisionNeedReview)
+		if decision != decisionAccept {
+			t.Fatalf("decision = %s, want %s", decision, decisionAccept)
 		}
-		if suggested != nil {
-			t.Fatalf("suggested price = %v, want nil", suggested)
+		if suggested == nil || !suggested.Equal(decimal.RequireFromString("9.00")) {
+			t.Fatalf("suggested price = %v, want 9.00", suggested)
 		}
 	})
 
-	t.Run("rejects low average price", func(t *testing.T) {
+	t.Run("accepts existing book with low average price", func(t *testing.T) {
 		price := models.PriceSnapshot{AvgPrice: decimalPtr("8.00"), SampleCount: 6, Confidence: "MEDIUM"}
 		decision, _, suggested := decideRecycle(book, true, true, price)
-		if decision != decisionReject {
-			t.Fatalf("decision = %s, want %s", decision, decisionReject)
+		if decision != decisionAccept {
+			t.Fatalf("decision = %s, want %s", decision, decisionAccept)
 		}
-		if suggested != nil {
-			t.Fatalf("suggested price = %v, want nil", suggested)
+		if suggested == nil || !suggested.Equal(decimal.RequireFromString("2.40")) {
+			t.Fatalf("suggested price = %v, want 2.40", suggested)
 		}
 	})
 
