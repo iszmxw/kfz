@@ -13,7 +13,7 @@ require (
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.5.0
-	github.com/gorilla/websocket v1.5.1
+	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/orcaman/concurrent-map v1.0.0
 	github.com/shopspring/decimal v1.4.0
